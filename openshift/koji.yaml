@@ -17,22 +17,22 @@ objects:
     name: hub-koji-claim
   spec:
     accessModes:
-      - ReadWriteMany
+      - ReadWriteOnce
     resources:
       requests:
         storage: 1Gi
-    volumeName: koji-volume
+    storageClassName: glusterfs-storage
 - apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
     name: hub-koji-clients-claim
   spec:
     accessModes:
-      - ReadWriteMany
+      - ReadWriteOnce
     resources:
       requests:
         storage: 1Gi
-    volumeName: koji-clients-volume
+    storageClassName: glusterfs-storage
 - apiVersion: v1
   kind: BuildConfig
   metadata:
@@ -162,8 +162,6 @@ objects:
           imagePullPolicy: IfNotPresent
           name: koji-builder
           resources: {}
-          securityContext:
-            runAsUser: 0
           terminationMessagePath: /dev/termination-log
           volumeMounts:
           - mountPath: /opt/koji
@@ -193,7 +191,6 @@ objects:
         from:
           kind: ImageStreamTag
           name: koji-builder:latest
-          namespace: koji
       type: ImageChange
 - apiVersion: v1
   kind: DeploymentConfig
@@ -225,8 +222,6 @@ objects:
           imagePullPolicy: IfNotPresent
           name: koji-client
           resources: {}
-          securityContext:
-            runAsUser: 0
           terminationMessagePath: /dev/termination-log
           volumeMounts:
           - mountPath: /opt/koji
@@ -256,7 +251,6 @@ objects:
         from:
           kind: ImageStreamTag
           name: koji-client:latest
-          namespace: koji
       type: ImageChange
   status: {}
 - apiVersion: v1
@@ -347,9 +341,13 @@ objects:
             protocol: TCP
           - containerPort: 443
             protocol: TCP
-          resources: {}
-          securityContext:
-            runAsUser: 0
+          resources:
+            limits:
+              memory: 3000Mi
+              cpu: 2000m
+            requests:
+              memory: 1000Mi
+              cpu: 1000m
           terminationMessagePath: /dev/termination-log
           volumeMounts:
           - mountPath: /opt/koji
@@ -379,7 +377,6 @@ objects:
         from:
           kind: ImageStreamTag
           name: koji-hub:latest
-          namespace: koji
       type: ImageChange
   status: {}
 - apiVersion: v1
@@ -434,19 +431,15 @@ objects:
       weight: 100
     wildcardPolicy: None
 parameters:
-  - name: PUBLIC_IP 
+  - name: PUBLIC_IP
     displayName: Public IP of openshift router
     value: 10.3.9.64
     required: true
-  - name: NAMESPACE 
-    displayName: Current namespace
-    value: koji
-    required: true
   - name: KOJI_DOJO_REMOTE
     displayName: Remote for koji dojo
-    value: https://github.com/release-engineering/koji-dojo
-    required: true 
+    value: https://github.com/LynnZhuang/koji-dojo
+    required: true
   - name: KOJI_DOJO_BRANCH
     displayName: koji dojo branch
     value: master
-    required: true 
+    required: true
