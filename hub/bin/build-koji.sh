@@ -2,7 +2,10 @@
 
 set -x
 
-ls -l /opt/koji
+
+if [ -d "/opt/koji" ]; then
+	rm -rf /opt/koji
+fi
 
 if [ ! -d "/opt/koji/.git" ]; then
 	# allow building from other locations / branches.
