@@ -2,11 +2,6 @@
 
 set -x
 
-
-if [ -d "/opt/koji" ]; then
-	rm -rf /opt/koji
-fi
-
 if [ ! -d "/opt/koji/.git" ]; then
 	# allow building from other locations / branches.
 	GIT_URL=${GIT_URL:-https://pagure.io/koji.git}
