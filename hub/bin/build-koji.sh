@@ -7,7 +7,7 @@ if [ ! -d "/opt/koji/.git" ]; then
 	GIT_URL=${GIT_URL:-https://pagure.io/koji.git}
 	GIT_BRANCH=${GIT_BRANCH:-master}
 
-    git clone --branch ${GIT_BRANCH} --verbose --progress ${GIT_URL} /opt/koji 2>&1
+    git clone --branch ${GIT_BRANCH} --verbose --progress ${GIT_URL} /opt/koji/koji 2>&1
 fi
 
 # install the latest version of python-coverage module
@@ -17,7 +17,7 @@ wget https://pypi.python.org/packages/2d/10/6136c8e10644c16906edf4d9f7c782c0f2e7
 easy_install coverage-4.1.tar.gz
 rm -f coverage-4.1.tar.gz
 
-cd /opt/koji
+cd /opt/koji/koji
 # Remove previous build to avoid multilib errors.
 rm -rf noarch
 make test-rpm
