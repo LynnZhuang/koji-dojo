@@ -1,6 +1,16 @@
 FROM centos:centos7
 MAINTAINER John Casey <jcasey@redhat.com>
 
+ARG KOJI_RPM=koji
+ARG KOJI_HUB_RPM=koji-hub
+ARG KOJI_HUB_PLUGINS_RPM=koji-hub-plugins
+ARG RH_KOJI_PLUGINS_RPM=rh-koji-plugins
+ARG BREWKOJI_RPM=brewkoji
+ARG KOJI_WEB_RPM=koji-web
+ARG RH_KOJI_THEME_RPM=rh-koji-theme
+ARG ADDITIONAL_RPMS='python-simplejson httpd mod_ssl PyGreSQL'
+ARG ADDITIONAL_REPOS=
+
 #RUN sed -i '/excludedocs/d' /etc/rpm/macros.imgcreate
 RUN sed -i '/nodocs/d' /etc/yum.conf
 
@@ -47,6 +57,18 @@ RUN yum -y update && \
         openssh-server \
         wget \
     ; yum clean all
+
+# install
+RUN yum -y install git \
+  && mkdir -p /usr/local/src \
+  && git clone "$KOJI_GIT_REPO" /usr/local/src/koji \
+  && cd /usr/local/src/koji \
+  && git fetch origin "$KOJI_GIT_REF" \
+  && git checkout -f "$KOJI_GIT_REF" \
+  && rm -rf noarch \
+  && make test-rpm \
+  && yum -y localinstall noarch/koji-hub*.rpm noarch/koji-1.*.rpm noarch/koji-web*.rpm noarch/python2-koji*.rpm \
+  && yum clean all
 
 ADD etc/ /etc/
 ADD bin/ /usr/local/bin/
