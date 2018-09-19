@@ -59,8 +59,7 @@ RUN yum -y update && \
     ; yum clean all
 
 # install
-RUN yum -y install git \
-  && mkdir -p /usr/local/src \
+RUN mkdir -p /usr/local/src \
   && git clone "$KOJI_GIT_REPO" /usr/local/src/koji \
   && cd /usr/local/src/koji \
   && git fetch origin "$KOJI_GIT_REF" \
