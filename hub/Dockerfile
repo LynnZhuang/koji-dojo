@@ -11,6 +11,9 @@ ARG RH_KOJI_THEME_RPM=rh-koji-theme
 ARG ADDITIONAL_RPMS='python-simplejson httpd mod_ssl PyGreSQL'
 ARG ADDITIONAL_REPOS=
 
+ARG KOJI_GIT_REPO=https://pagure.io/koji.git
+ARG KOJI_GIT_REF=master
+
 #RUN sed -i '/excludedocs/d' /etc/rpm/macros.imgcreate
 RUN sed -i '/nodocs/d' /etc/yum.conf
 
