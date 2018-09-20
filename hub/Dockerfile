@@ -90,7 +90,7 @@ RUN chown apache.apache /mnt/koji/*
 RUN echo 'root:mypassword' | chpasswd
 
 RUN rm -rf /etc/httpd/conf.d/ssl.conf
-RUN chmod -R g+w /run/httpd
+RUN chgrp root /run/httpd && chmod -R g+w /run/httpd
 
 EXPOSE 22 80 443
 
