@@ -89,6 +89,8 @@ RUN mkdir -p /mnt/koji/{packages,repos,work,scratch}
 RUN chown apache.apache /mnt/koji/*
 RUN echo 'root:mypassword' | chpasswd
 
+RUN rm -rf /etc/httpd/conf.d/ssl.conf
+
 EXPOSE 22 80 443
 
 ENTRYPOINT /usr/local/bin/entrypoint.sh
