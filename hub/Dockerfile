@@ -93,6 +93,14 @@ RUN rm -rf /etc/httpd/conf.d/ssl.conf
 RUN chgrp root /run/httpd && chmod -R g+w /run/httpd
 RUN sed -i 's/Listen 80/Listen 8080/g' /etc/httpd/conf/httpd.conf
 
+# configure
+RUN \
+  # redirect HTTPD logs to stdout/stderr
+  sed -ri \
+  -e 's!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g' \
+  -e 's!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g' \
+  /etc/httpd/conf/httpd.conf
+
 EXPOSE 22 80 443
 
 ENTRYPOINT /usr/local/bin/entrypoint.sh
