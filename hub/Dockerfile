@@ -91,6 +91,7 @@ RUN echo 'root:mypassword' | chpasswd
 
 RUN rm -rf /etc/httpd/conf.d/ssl.conf
 RUN chgrp root /run/httpd && chmod -R g+w /run/httpd
+RUN sed -i 's/Listen 80/Listen 8080/g' /etc/httpd/conf/httpd.conf
 
 EXPOSE 22 80 443
 
