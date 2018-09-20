@@ -2,4 +2,4 @@
 
 set -x
 
-cat /etc/httpd/conf.d/ssl.conf
+cat /etc/httpd/conf/httpd.conf
