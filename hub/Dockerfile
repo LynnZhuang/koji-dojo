@@ -91,6 +91,9 @@ RUN echo 'root:mypassword' | chpasswd
 
 RUN rm -rf /etc/httpd/conf.d/ssl.conf
 RUN chgrp root /run/httpd && chmod -R g+w /run/httpd
+RUN chmod -R 775 /etc/koji-hub && chmod -R 775 /mnt/koji
+
+# as port 80 is not available in OpenShift, we temporary use 8080 here
 RUN sed -i 's/Listen 80/Listen 8080/g' /etc/httpd/conf/httpd.conf
 
 # configure
