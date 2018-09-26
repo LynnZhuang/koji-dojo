@@ -59,6 +59,7 @@ RUN yum -y update && \
         python-coverage \
         openssh-server \
         wget \
+        policycoreutils \
     ; yum clean all
 
 # install
