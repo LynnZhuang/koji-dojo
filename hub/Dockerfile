@@ -59,7 +59,6 @@ RUN yum -y update && \
         python-coverage \
         openssh-server \
         wget \
-        policycoreutils \
     ; yum clean all
 
 # install
@@ -94,7 +93,6 @@ RUN rm -rf /etc/httpd/conf.d/ssl.conf
 RUN chgrp root /run/httpd && chmod -R g+w /run/httpd
 RUN chmod -R 775 /etc/koji-hub && chmod -R 775 /mnt/koji
 RUN chmod -R 775 /etc
-RUN setsebool -P httpd_can_network_connect_db=1 allow_httpd_anon_write=1
 RUN chcon -R -t public_content_rw_t /mnt/koji/*
 
 # temporary
