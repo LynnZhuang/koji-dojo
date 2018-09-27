@@ -410,6 +410,10 @@ objects:
       port: 443
       protocol: TCP
       targetPort: 443
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
     selector:
       name: hub
     sessionAffinity: None
