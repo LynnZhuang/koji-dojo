@@ -94,7 +94,7 @@ RUN chgrp root /run/httpd && chmod -R g+w /run/httpd
 RUN chmod -R 775 /etc/koji-hub && chmod -R 775 /mnt/koji
 RUN chmod -R 775 /etc
 RUN chmod -R 775 /var/www/html
-RUN chcon -R -t public_content_rw_t /mnt/koji/*
+# RUN chcon -R -t public_content_rw_t /mnt/koji/*
 
 # temporary
 RUN chmod -R 775 /usr/lib/python2.7/site-packages/koji_cli
