@@ -46,6 +46,7 @@ generate_ssl_certificates() {
 		CA_SAN="IP.1:koji-hub,DNS.1:localhost,DNS.2:koji-hub,IP.3:${ADDITIONAL_SAN},DNS.3:koji-hub,email:move"
 	fi
 
+	cp /usr/local/bin/ssl.cnf /etc/pki/koji/ssl.cnf
 	cat ssl.cnf | sed "s/email\:move/${CA_SAN}/"> $conf	cp ssl.cnf $conf
 
 	openssl genrsa -out private/koji_ca_cert.key 2048
