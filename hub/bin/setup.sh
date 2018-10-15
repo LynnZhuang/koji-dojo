@@ -30,7 +30,7 @@ allow_read_logs() {
 generate_ssl_certificates() {
 	echo "Generate SSL certificates"
 
-	IP=$(find-ip.py || echo "kojihub.local")
+	# IP=$(find-ip.py || echo "kojihub.local")
 
 	mkdir -p /etc/pki/koji/{certs,private,confs}
 
@@ -41,11 +41,11 @@ generate_ssl_certificates() {
 
 	# CA
 	conf=confs/ca.cnf
-	CA_SAN="IP.1:${IP},DNS.1:localhost,DNS.2:${IP},email:move"
+	CA_SAN="IP.1:koji-hub,DNS.1:localhost,DNS.2:koji-hub,email:move"
 	if [ -n "$ADDITIONAL_SAN" ]; then
-		CA_SAN="IP.1:${IP},DNS.1:localhost,DNS.2:${IP},IP.3:${ADDITIONAL_SAN},DNS.3:koji-hub,email:move"
+		CA_SAN="IP.1:koji-hub,DNS.1:localhost,DNS.2:koji-hub,IP.3:${ADDITIONAL_SAN},DNS.3:koji-hub,email:move"
 	fi
- 
+
 	cat ssl.cnf | sed "s/email\:move/${CA_SAN}/"> $conf	cp ssl.cnf $conf
 
 	openssl genrsa -out private/koji_ca_cert.key 2048
@@ -100,4 +100,3 @@ then
 else
 	create_koji_config_for_root
 fi
-

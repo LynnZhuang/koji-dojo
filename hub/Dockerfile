@@ -67,6 +67,8 @@ RUN mkdir -p /usr/local/src \
   && cd /usr/local/src/koji \
   && git fetch origin "$KOJI_GIT_REF" \
   && git checkout -f "$KOJI_GIT_REF" \
+  # modify httpd port, 80 to 8080
+  && sed -i "s/port == '80'/port == '8080'/g" ./www/kojiweb/index.py \
   && rm -rf noarch \
   && make test-rpm \
   && yum -y localinstall noarch/koji-hub*.rpm noarch/koji-1.*.rpm noarch/koji-web*.rpm noarch/python2-koji*.rpm \
@@ -85,8 +87,7 @@ RUN chmod +x /var/www/cgi-bin/*.py
 RUN chmod o+rwx /var/www/html
 RUN chmod -R o+rx /etc/httpd
 
-RUN mkdir -p /mnt/koji/{packages,repos,work,scratch}
-RUN chown apache.apache /mnt/koji/*
+RUN bash -c "/usr/local/bin/setup.sh"
 RUN echo 'root:mypassword' | chpasswd
 
 RUN rm -rf /etc/httpd/conf.d/ssl.conf
@@ -103,6 +104,8 @@ RUN chmod -R 775 /usr/lib/python2.7/site-packages/koji
 
 # as port 80 is not available in OpenShift, we temporary use 8080 here
 RUN sed -i 's/Listen 80/Listen 8080/g' /etc/httpd/conf/httpd.conf
+
+#
 
 # configure
 RUN \
