@@ -90,7 +90,7 @@ RUN chmod -R o+rx /etc/httpd
 RUN bash -c "/usr/local/bin/setup.sh"
 RUN echo 'root:mypassword' | chpasswd
 
-RUN rm -rf /etc/httpd/conf.d/ssl.conf
+# RUN rm -rf /etc/httpd/conf.d/ssl.conf
 RUN chgrp root /run/httpd && chmod -R g+w /run/httpd
 RUN chmod -R 775 /etc/koji-hub && chmod -R 775 /mnt/koji
 RUN chmod -R 775 /etc
