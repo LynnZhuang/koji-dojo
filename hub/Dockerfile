@@ -87,6 +87,7 @@ RUN chmod +x /var/www/cgi-bin/*.py
 RUN chmod o+rwx /var/www/html
 RUN chmod -R o+rx /etc/httpd
 
+RUN bash -c "/usr/local/bin/setup_psql.sh"
 RUN bash -c "/usr/local/bin/setup.sh"
 RUN echo 'root:mypassword' | chpasswd
 
