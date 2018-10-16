@@ -103,6 +103,7 @@ RUN chmod -R 775 /etc/httpd/logs
 RUN chmod -R 775 /usr/lib/python2.7/site-packages/koji_cli
 RUN chmod -R 775 /usr/lib/python2.7/site-packages/koji_cli_plugins
 RUN chmod -R 775 /usr/lib/python2.7/site-packages/koji
+RUN chmod -R 775 /usr/share/koji-web
 
 # as port 80 is not available in OpenShift, we temporary use 8080 here
 RUN sed -i 's/Listen 80/Listen 8080/g' /etc/httpd/conf/httpd.conf
