@@ -25,4 +25,5 @@ RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so
 RUN mkdir /var/run/sshd
 RUN echo 'root:mypassword' | chpasswd
 
-ENTRYPOINT /usr/local/bin/entrypoint.sh
+# ENTRYPOINT /usr/local/bin/entrypoint.sh
+ENTRYPOINT ['/bin/bash']
