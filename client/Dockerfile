@@ -10,7 +10,10 @@ RUN yum -y update && \
         python-simplejson \
         openssh-server \
         openssh-clients \
+        koji \
     ; yum clean all
+
+RUN bash -c "/usr/local/bin/setup.sh"
 
 ADD bin/ /usr/local/bin/
 
