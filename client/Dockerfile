@@ -13,9 +13,9 @@ RUN yum -y update && \
         koji \
     ; yum clean all
 
-RUN bash -c "/usr/local/bin/setup.sh"
-
 ADD bin/ /usr/local/bin/
+
+RUN bash -c "/usr/local/bin/setup.sh"
 
 RUN chmod +x /usr/local/bin/*
 RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
