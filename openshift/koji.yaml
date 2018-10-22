@@ -222,6 +222,8 @@ objects:
           imagePullPolicy: IfNotPresent
           name: koji-client
           resources: {}
+          stdin: true
+          tty: true
           terminationMessagePath: /dev/termination-log
           volumeMounts:
           - mountPath: /opt/koji

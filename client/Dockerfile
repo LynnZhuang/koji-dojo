@@ -26,4 +26,4 @@ RUN mkdir /var/run/sshd
 RUN echo 'root:mypassword' | chpasswd
 
 # ENTRYPOINT /usr/local/bin/entrypoint.sh
-ENTRYPOINT ["/bin/sh", "-c", "bash"]
+CMD ["/bin/bash"]
