@@ -64,6 +64,7 @@ cp /etc/pki/koji/certs/${user}.pem $client/client.pem
 cp /etc/pki/koji/certs/${user}_browser_cert.p12 $client/client_browser_cert.p12
 cp /etc/pki/koji/koji_ca_cert.crt $client/clientca.crt
 cp /etc/pki/koji/koji_ca_cert.crt $client/serverca.crt
+ls -l $client
 
 cat <<EOF > $client/config
 [koji]
