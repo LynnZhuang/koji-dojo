@@ -9,7 +9,7 @@ fi
 
 while true; do
 	echo "Waiting for koji-hub to start..."
-    hubstart=$(curl -X GET http://koji-hub:8080/)
+    hubstart=$(curl -X GET http://koji-hub:8080/koji/)
 	echo $hubstart
 	if [ "x$hubstart" != "x" ]; then
 		echo "koji-hub started:"
