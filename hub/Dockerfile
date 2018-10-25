@@ -118,8 +118,6 @@ RUN \
   -e 's!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g' \
   /etc/httpd/conf/httpd.conf
 
-RUN bash -c "ls -l /opt/koji-clients"
-
 EXPOSE 22 80 443
 
 ENTRYPOINT /usr/local/bin/entrypoint.sh

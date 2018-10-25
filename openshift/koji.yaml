@@ -96,8 +96,10 @@ objects:
     nodeSelector: null
     output:
       to:
-        kind: ImageStreamTag
-        name: koji-hub:latest
+        kind: DockerImage
+        name: docker-registry.engineering.redhat.com/lzhuang/koji-hub:latest
+      pushSecret:
+        name: "lzhuang-dockercfg-w5p75"
     postCommit: {}
     resources: {}
     runPolicy: Serial
@@ -333,8 +335,8 @@ objects:
         - env:
           - name: ADDITIONAL_SAN
             value: ${PUBLIC_IP}
-          image: koji-hub
-          imagePullPolicy: IfNotPresent
+          image: "docker-registry.engineering.redhat.com/lzhuang/koji-hub:latest"
+          imagePullPolicy: Always
           name: koji-hub
           ports:
           - containerPort: 22
