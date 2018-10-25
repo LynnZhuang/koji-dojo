@@ -99,7 +99,7 @@ objects:
         kind: DockerImage
         name: docker-registry.engineering.redhat.com/lzhuang/koji-hub:latest
       pushSecret:
-        name: "lzhuang-dockercfg-w5p75"
+        name: "lzhuang-koji-hub"
     postCommit: {}
     resources: {}
     runPolicy: Serial
