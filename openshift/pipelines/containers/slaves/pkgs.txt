@@ -1,0 +1,35 @@
+yum install python-psutil python-twisted wmctrl gnupg fakeroot rpm-build
+yum install python-psutil python-twisted wmctrl gnupg fakeroot rpm-build
+pip install nose
+dnf install git
+dnf install make
+dnf install python-coverage
+dnf install Cheetah
+dnf install python-cheetah
+dnf install python-requests
+dnf install python-rpm
+dnf install python-mock
+dnf install python-multilib
+dnf install python rpmUtils
+dnf install python-rpmUtils
+dnf install mock
+dnf install yum
+dnf install python-psycopg2
+dnf install python-proton
+dnf install python-qpid-proton
+dnf install python-kerberos
+pip install requests_kerberos
+dnf install gcc
+pip install requests_kerberos
+dnf install python-devel
+pip install requests_kerberos
+dnf install python-gssapi
+pip install requests_kerberos
+pip install gssapi
+pip install requests_kerberos
+dnf install krb5-devel
+pip install requests_kerberos
+dnf install python-krbV
+dnf install dateutil
+dnf install python-dateutil
+dnf install dateutil

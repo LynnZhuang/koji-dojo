@@ -1,0 +1,204 @@
+# Template to produce a new WaiverDB dev CI/CD pipeline in OpenShift.
+#
+# Dev pipeline is a part of the WaiverDB Pipeline, covers the following steps:
+#
+# - Run Flake8 and Pylint checks (?)
+# - Run unit tests
+# - Build Docs (?)
+# - Publish Docs (?)
+# - Build SRPM (?)
+# - Build RPM (?)
+# - Invoke Rpmlint (?)
+# - Build container
+# - Run functional tests
+# - Push container
+#
+# Required Jenkins Plugins:
+# - Openshift Sync plugin
+# - Openshift Client plugin
+# - Kubernetes plugin
+# - SSH Agent plugin
+# - Timestamper plugin
+#
+---
+apiVersion: v1
+kind: Template
+metadata:
+  name: hub-dev-pipeline
+parameters:
+- name: NAME
+  displayName: Short unique identifier for the templated instances
+  description: This field is used to deploy multiple pipelines to one OpenShift project from this template.
+  required: true
+  value: koji-dev
+- name: KOJI_GIT_REPO
+  displayName: Koji Git repo URL
+  description: Default WaiverDB Git repo URL in which to run dev tests against
+  required: true
+  value: "https://pagure.io/koji.git"
+- name: KOJI_GIT_REF
+  displayName: Koji Git repo ref
+  description: Default koji Git repo ref in which to run dev tests against
+  required: true
+  value: master
+- name: KOJI_MAIN_BRANCH
+  displayName: Name of the main branch.
+  description: If KOJI_MAIN_BRANCH equals KOJI_GIT_REF, publishing steps will be automatically performed.
+  value: master
+  required: true
+- name: JENKINS_AGENT_CLOUD_NAME
+  displayName: Name of OpenShift cloud in Jenkins master configuration
+  required: true
+  value: openshift
+- name: JENKINS_AGENT_IMAGE
+  displayName: Container image for Jenkins slave pods
+  required: true
+  value: docker-registry.engineering.redhat.com/lzhuang/koji-jenkins-slave:latest
+- name: KOJI_DEV_IMAGE_DESTINATIONS
+  displayName: Comma seperated list of container repository/tag to which the built WaiverDB dev image will be pushed
+  description: OpenShift registries must be prefixed with 'atomic:'
+  required: false
+  value: "atomic:quay.io/factory2/kojihub:latest"
+- name: CONTAINER_REGISTRY_CREDENTIALS
+  displayName: Secret name of container registries used for pulling and pushing images
+  value: lzhuang-koji-hub
+  required: false
+- name: KOJIHUB_DEV_IMAGE_TAG
+  displayName: Tag name of the resulting container image for development environment
+  value: "latest"
+  required: true
+- name: KOJIHUB_IMAGESTREAM_NAME
+  displayName: Name of ImageStream for kojihub container images
+  required: true
+  value: kojihub
+- name: KOJIHUB_IMAGESTREAM_NAMESPACE
+  displayName: Namespace of ImageStream for kojihub container images
+  required: false
+- name: WAIVERDB_INTEGRATION_TEST_BUILD_CONFIG_NAME
+  displayName: Name of BuildConfig for running integration tests
+  required: true
+  value: koji-integration-test
+# - name: KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAMESPACE
+#   displayName: Namespace of BuildConfig for running integration tests
+#   required: false
+- name: FORCE_PUBLISH_IMAGE
+  displayName: Whether to push the resulting image regardless of the Git branch
+  value: "false"
+  required: true
+- name: FORCE_PUBLISH_DOCS
+  displayName: Whether to publish docs regardless of the Git branch
+  value: "false"
+  required: true
+- name: TAG_INTO_IMAGESTREAM
+  displayName: Whether to tag the pushed image as dev
+  value: "true"
+  required: true
+labels:
+  template: koji-dev
+objects:
+- kind: "BuildConfig"
+  apiVersion: "v1"
+  metadata:
+    name: "${NAME}-jenkins-slave"
+    labels:
+      app: "${NAME}"
+  spec:
+    runPolicy: "Serial"
+    completionDeadlineSeconds: 1800
+    strategy:
+      dockerStrategy:
+        forcePull: true
+        dockerfilePath: openshift/containers/jenkins-slave/Dockerfile
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "300m"
+      limits:
+       memory: "768Mi"
+       cpu: "500m"
+    source:
+      git:
+        uri: "${KOJI_GIT_REPO}"
+        ref: "${KOJI_GIT_REF}"
+    output:
+      to:
+        kind: "DockerImage"
+        name: "${JENKINS_AGENT_IMAGE}"
+      pushSecret:
+       name: "${CONTAINER_REGISTRY_CREDENTIALS}"
+
+- kind: ServiceAccount
+  apiVersion: v1
+  metadata:
+    name: "${NAME}-jenkins-slave"
+    labels:
+      app: "${NAME}"
+
+- kind: RoleBinding
+  apiVersion: v1
+  metadata:
+    name: "${NAME}-jenkins-slave_edit"
+    labels:
+      app: "${NAME}"
+  subjects:
+  - kind: ServiceAccount
+    name: "${NAME}-jenkins-slave"
+  roleRef:
+    name: edit
+
+- kind: "BuildConfig"
+  apiVersion: "v1"
+  metadata:
+    name: "${NAME}"
+    labels:
+      app: "${NAME}"
+  spec:
+    runPolicy: "Serial" # FIXME: Parallel is supported, but we have limited quota in UpShift.
+    completionDeadlineSeconds: 1800
+    source:
+      git:
+        uri: "${KOJI_GIT_REPO}"
+        ref: "${KOJI_GIT_REF}"
+    strategy:
+      type: JenkinsPipeline
+      jenkinsPipelineStrategy:
+        env:
+        - name: "KOJI_GIT_REPO"
+          value: "${KOJI_GIT_REPO}"
+        - name: "KOJI_GIT_REF"
+          value: "${KOJI_GIT_REF}"
+        - name: "JENKINS_AGENT_CLOUD_NAME"
+          value: "${JENKINS_AGENT_CLOUD_NAME}"
+        - name: "JENKINS_AGENT_IMAGE"
+          value:  "${JENKINS_AGENT_IMAGE}"
+        - name: "JENKINS_AGENT_SERVICE_ACCOUNT"
+          value:  "${NAME}-jenkins-slave"
+        - name: "KOJI_DEV_IMAGE_DESTINATIONS"
+          value: "${KOJI_DEV_IMAGE_DESTINATIONS}"
+        - name: "CONTAINER_REGISTRY_CREDENTIALS"
+          value: "${CONTAINER_REGISTRY_CREDENTIALS}"
+        - name: "FORCE_PUBLISH_IMAGE"
+          value: "${FORCE_PUBLISH_IMAGE}"
+        - name: "TAG_INTO_IMAGESTREAM"
+          value: "${TAG_INTO_IMAGESTREAM}"
+        - name: "KOJI_DEV_IMAGE_TAG"
+          value: "${KOJI_DEV_IMAGE_TAG}"
+        - name: "KOJI_IMAGESTREAM_NAME"
+          value: "${KOJI_IMAGESTREAM_NAME}"
+        - name: "KOJI_IMAGESTREAM_NAMESPACE"
+          value: "${KOJI_IMAGESTREAM_NAMESPACE}"
+        - name: "FORCE_PUBLISH_DOCS"
+          value: "${FORCE_PUBLISH_DOCS}"
+        - name: "PAGURE_DOC_REPO_NAME"
+          value: "${PAGURE_DOC_REPO_NAME}"
+        - name: "PAGURE_DOC_SECRET"
+          value: "${PAGURE_DOC_SECRET}"
+        - name: "KOJI_MAIN_BRANCH"
+          value: "${KOJI_MAIN_BRANCH}"
+        - name: "KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAME"
+          value: "${KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAME}"
+        - name: "KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAMESPACE"
+          value: "${KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAMESPACE}"
+        # - name: BUILD_DISPLAY_RENAME_TO
+        #   value: ""
+        jenkinsfilePath: openshift/pipelines/templates/hub-dev.Jenkinsfile
