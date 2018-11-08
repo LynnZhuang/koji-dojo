@@ -170,9 +170,6 @@ pipeline {
               echo 'Functional test is set to PASSED temporarily.'
             }
           }
-        }
-      }
-    }
     stage('Push container') {
       when {
         expression {
