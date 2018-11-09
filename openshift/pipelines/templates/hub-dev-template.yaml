@@ -54,7 +54,8 @@ parameters:
 - name: JENKINS_AGENT_IMAGE
   displayName: Container image for Jenkins slave pods
   required: true
-  value: docker-registry.engineering.redhat.com/lzhuang/koji-jenkins-slave:latest
+  # value: docker-registry.engineering.redhat.com/lzhuang/koji-jenkins-slave:latest
+  value: docker-registry.engineering.redhat.com/factory2/waiverdb-jenkins-slave:latest
 - name: KOJI_DEV_IMAGE_DESTINATIONS
   displayName: Comma seperated list of container repository/tag to which the built WaiverDB dev image will be pushed
   description: OpenShift registries must be prefixed with 'atomic:'
