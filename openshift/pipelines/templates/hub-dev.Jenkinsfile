@@ -1,7 +1,7 @@
 pipeline {
   agent {
     kubernetes {
-      cloud params.
+      cloud params.JENKINS_AGENT_CLOUD_NAME
       label "jenkins-slave-${UUID.randomUUID().toString()}"
       serviceAccount params.JENKINS_AGENT_SERVICE_ACCOUNT
       defaultContainer 'jnlp'
@@ -35,10 +35,10 @@ pipeline {
       """
     }
   }
-  options {
-    timestamps()
-    timeout(time: 30, unit: 'MINUTES')
-  }
+  // options {
+  //   timestamps()
+  //   timeout(time: 30, unit: 'MINUTES')
+  // }
   environment {
     PIPELINE_NAMESPACE = readFile('/run/secrets/kubernetes.io/serviceaccount/namespace').trim()
     PIPELINE_USERNAME = sh(returnStdout: true, script: 'id -un').trim()

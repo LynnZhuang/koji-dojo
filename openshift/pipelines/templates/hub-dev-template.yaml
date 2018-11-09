@@ -35,7 +35,8 @@ parameters:
   displayName: Koji Git repo URL
   description: Default WaiverDB Git repo URL in which to run dev tests against
   required: true
-  value: "https://pagure.io/koji.git"
+  # value: "https://pagure.io/koji.git"
+  value: https://github.com/LynnZhuang/koji-dojo.git
 - name: KOJI_GIT_REF
   displayName: Koji Git repo ref
   description: Default koji Git repo ref in which to run dev tests against
