@@ -19,7 +19,6 @@ pipeline {
           image: "${params.JENKINS_AGENT_IMAGE}"
           imagePullPolicy: Always
           tty: true
-          pullSecret: "${params.CONTAINER_REGISTRY_CREDENTIALS}"
           // env:
           // - name: REGISTRY_CREDENTIALS
           //   valueFrom:
@@ -33,6 +32,8 @@ pipeline {
             limits:
               memory: 1Gi
               cpu: 500m
+        imagePullSecrets:
+        - name: ${params.CONTAINER_REGISTRY_CREDENTIALS}"
       """
     }
   }
