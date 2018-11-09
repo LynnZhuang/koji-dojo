@@ -19,8 +19,7 @@ pipeline {
           image: "${params.JENKINS_AGENT_IMAGE}"
           imagePullPolicy: Always
           tty: true
-          pullSecret:
-            name: "${params.CONTAINER_REGISTRY_CREDENTIALS}"
+          pullSecret: "${params.CONTAINER_REGISTRY_CREDENTIALS}"
           // env:
           // - name: REGISTRY_CREDENTIALS
           //   valueFrom:
