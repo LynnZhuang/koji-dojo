@@ -33,7 +33,7 @@ pipeline {
               memory: 1Gi
               cpu: 500m
         imagePullSecrets:
-        - name: ${params.CONTAINER_REGISTRY_CREDENTIALS}"
+        - name: "${params.CONTAINER_REGISTRY_CREDENTIALS}"
       """
     }
   }
