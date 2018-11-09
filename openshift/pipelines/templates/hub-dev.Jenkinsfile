@@ -19,12 +19,14 @@ pipeline {
           image: "${params.JENKINS_AGENT_IMAGE}"
           imagePullPolicy: Always
           tty: true
-          env:
-          - name: REGISTRY_CREDENTIALS
-            valueFrom:
-              secretKeyRef:
-                name: "${params.CONTAINER_REGISTRY_CREDENTIALS}"
-                key: '.dockerconfigjson'
+          pullSecret:
+            name: "${params.CONTAINER_REGISTRY_CREDENTIALS}"
+          // env:
+          // - name: REGISTRY_CREDENTIALS
+          //   valueFrom:
+          //     secretKeyRef:
+          //       name: "${params.CONTAINER_REGISTRY_CREDENTIALS}"
+          //       key: '.dockerconfigjson'
           resources:
             requests:
               memory: 768Mi
@@ -37,8 +39,8 @@ pipeline {
   }
   // options {
   //   timestamps()
-  //   timeout(time: 30, unit: 'MINUTES')
-  // }
+  //  timeout(time: 30, unit: 'MINUTES')
+  }
   environment {
     PIPELINE_NAMESPACE = readFile('/run/secrets/kubernetes.io/serviceaccount/namespace').trim()
     PIPELINE_USERNAME = sh(returnStdout: true, script: 'id -un').trim()
