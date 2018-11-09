@@ -32,8 +32,8 @@ pipeline {
             limits:
               memory: 1Gi
               cpu: 500m
-        imagePullSecrets:
-        - name: "${params.CONTAINER_REGISTRY_CREDENTIALS}"
+        // imagePullSecrets:
+        // - name: "${params.CONTAINER_REGISTRY_CREDENTIALS}"
       """
     }
   }
