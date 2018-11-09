@@ -40,7 +40,7 @@ pipeline {
   // options {
   //   timestamps()
   //  timeout(time: 30, unit: 'MINUTES')
-  }
+  // }
   environment {
     PIPELINE_NAMESPACE = readFile('/run/secrets/kubernetes.io/serviceaccount/namespace').trim()
     PIPELINE_USERNAME = sh(returnStdout: true, script: 'id -un').trim()
