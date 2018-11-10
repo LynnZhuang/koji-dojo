@@ -66,21 +66,21 @@ pipeline {
         }
       }
     }
-    stage('Run checks') {
-      failFast false
-      parallel {
-        stage('Invoke Flake8') {
-          steps {
-            sh 'flake8'
-          }
-        }
-        stage('Invoke Pylint') {
-          steps {
-            sh 'pylint-3 --reports=n waiverdb'
-          }
-        }
-      }
-    }
+    // stage('Run checks') {
+    //   failFast false
+    //   parallel {
+    //     stage('Invoke Flake8') {
+    //       steps {
+    //         sh 'flake8'
+    //       }
+    //     }
+    //     stage('Invoke Pylint') {
+    //       steps {
+    //         sh 'pylint-3 --reports=n waiverdb'
+    //       }
+    //     }
+    //   }
+    // }
     stage('Run unit tests') {
       steps {
         // wait for the test datebase to come up
