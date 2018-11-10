@@ -32,8 +32,6 @@ pipeline {
             limits:
               memory: 1Gi
               cpu: 500m
-        // imagePullSecrets:
-        // - name: "${params.CONTAINER_REGISTRY_CREDENTIALS}"
       """
     }
   }
@@ -48,8 +46,11 @@ pipeline {
   stages {
     stage('Prepare') {
       steps {
+        echo 'Step Prepare......'
         script {
+          echo 'script....'
           if (params.BUILD_DISPLAY_RENAME_TO) {
+            echo 'parameter build_dispaly_rename_to...'
             currentBuild.displayName = params.BUILD_DISPLAY_RENAME_TO
           }
           def scmVars = checkout([$class: 'GitSCM',
