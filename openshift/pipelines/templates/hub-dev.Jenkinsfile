@@ -41,7 +41,7 @@ pipeline {
   // }
   environment {
     PIPELINE_NAMESPACE = readFile('/run/secrets/kubernetes.io/serviceaccount/namespace').trim()
-    PIPELINE_USERNAME = sh(returnStdout: true, script: 'id -un').trim()
+    // PIPELINE_USERNAME = sh(returnStdout: true, script: 'id -un').trim()
   }
   stages {
     stage('Prepare') {
