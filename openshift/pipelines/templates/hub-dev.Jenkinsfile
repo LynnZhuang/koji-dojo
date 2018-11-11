@@ -87,6 +87,7 @@ pipeline {
         // sh 'psql -h 127.0.0.1 -U "postgres" -q -d "waiverdb" -c "CREATE ROLE \"$PIPELINE_USERNAME\" WITH LOGIN SUPERUSER;"'
         // run unit tests
         sh(script: 'pwd')
+        sh(script: 'ls /usr/local/src/koji')
         dir ("$KOJI_REPO_DIR"){
             sh(script: 'ls')
             sh(script: 'make test')
