@@ -88,12 +88,13 @@ pipeline {
         // run unit tests
         sh(script: 'pwd')
         sh(script: 'ls /usr/local/src/koji')
-        dir ("$KOJI_REPO_DIR"){
-            echo 'Running unit test in /usr/local/src/koji...'
-            sh(script: 'pwd')
-            sh(script: 'make test')
-            echo 'end of unit test'
-            }
+        sh(script: 'cd /usr/local/src/koji && make test')
+        // dir ("$KOJI_REPO_DIR"){
+        //     echo 'Running unit test in /usr/local/src/koji...'
+        //     sh(script: 'pwd')
+        //     sh(script: 'make test')
+        //     echo 'end of unit test'
+        //     }
         }
       // post {
       //   always {
