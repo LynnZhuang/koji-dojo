@@ -55,7 +55,7 @@ pipeline {
           // }
           sh(script: 'echo -en "$KOJI_GIT_REF\n$KOJI_GIT_REPO\n$KOJI_REPO_DIR"')
           dir: "$KOJI_REPO_DIR"
-          sh(script: pwd)
+          pwd
           def scmVars = checkout([$class: 'GitSCM',
             branches: [[name: params.KOJI_GIT_REF]],
             userRemoteConfigs: [[url: params.KOJI_GIT_REPO]],
