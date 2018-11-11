@@ -53,10 +53,12 @@ pipeline {
             echo 'parameter build_dispaly_rename_to...'
             currentBuild.displayName = params.BUILD_DISPLAY_RENAME_TO
           }
+          echo -en "$KOJI_DOJO_GIT_REF\n$KOJI_DOJO_GIT_REPO"
           def scmVars = checkout([$class: 'GitSCM',
             branches: [[name: params.KOJI_DOJO_GIT_REF]],
             userRemoteConfigs: [[url: params.KOJI_DOJO_GIT_REPO]],
           ])
+          echo 'end git checkout'
           env.KOJI_GIT_COMMIT_ID = scmVars.GIT_COMMIT
           // Generate a version-release number for the target Git commit
           // def versions = sh(returnStdout: true, script: 'source ./version.sh && echo -en "$KOJI_VERSION\n$KOJI_CONTAINER_VERSION"').split('\n')
