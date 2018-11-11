@@ -49,11 +49,11 @@ pipeline {
         echo 'Step Prepare......'
         script {
           echo 'script....'
-          if (params.BUILD_DISPLAY_RENAME_TO) {
-            echo 'parameter build_dispaly_rename_to...'
-            currentBuild.displayName = params.BUILD_DISPLAY_RENAME_TO
-          }
-          echo -en "$KOJI_DOJO_GIT_REF\n$KOJI_DOJO_GIT_REPO"
+          // if (params.BUILD_DISPLAY_RENAME_TO) {
+          //   echo 'parameter build_dispaly_rename_to...'
+          //   currentBuild.displayName = params.BUILD_DISPLAY_RENAME_TO
+          // }
+          sh(script: 'echo -en "$KOJI_DOJO_GIT_REF\n$KOJI_DOJO_GIT_REPO"').split('\n')
           def scmVars = checkout([$class: 'GitSCM',
             branches: [[name: params.KOJI_DOJO_GIT_REF]],
             userRemoteConfigs: [[url: params.KOJI_DOJO_GIT_REPO]],
