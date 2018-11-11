@@ -60,7 +60,7 @@ pipeline {
                 userRemoteConfigs: [[url: params.KOJI_GIT_REPO]],
           ])}
           echo 'end git checkout'
-          env.KOJI_GIT_COMMIT_ID = scmVars.GIT_COMMIT
+          // env.KOJI_GIT_COMMIT_ID = scmVars.GIT_COMMIT
         }
       }
     }
