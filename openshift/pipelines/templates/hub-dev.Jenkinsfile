@@ -89,6 +89,7 @@ pipeline {
         sh(script: 'pwd')
         sh(script: 'ls /usr/local/src/koji')
         dir ("$KOJI_REPO_DIR"){
+            echo 'Running unit test in /usr/local/src/koji...'
             sh(script: 'ls')
             sh(script: 'make test')
             }
