@@ -54,8 +54,8 @@ pipeline {
             currentBuild.displayName = params.BUILD_DISPLAY_RENAME_TO
           }
           def scmVars = checkout([$class: 'GitSCM',
-            branches: [[name: params.KOJI_GIT_REF]],
-            userRemoteConfigs: [[url: params.KOJI_GIT_REPO]],
+            branches: [[name: params.KOJI_DOJO_GIT_REF]],
+            userRemoteConfigs: [[url: params.KOJI_DOJO_GIT_REPO]],
           ])
           env.KOJI_GIT_COMMIT_ID = scmVars.GIT_COMMIT
           // Generate a version-release number for the target Git commit

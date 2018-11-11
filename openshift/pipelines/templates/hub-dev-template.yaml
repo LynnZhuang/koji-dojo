@@ -31,12 +31,26 @@ parameters:
   description: This field is used to deploy multiple pipelines to one OpenShift project from this template.
   required: true
   value: koji-dev
+- name: KOJI_DOJO_GIT_REPO
+  displayName: Koji Git repo URL
+  description: Default WaiverDB Git repo URL in which to run dev tests against
+  required: true
+  value: https://github.com/LynnZhuang/koji-dojo.git
+- name: KOJI_DOJO_GIT_REF
+  displayName: Koji Git repo ref
+  description: Default koji Git repo ref in which to run dev tests against
+  required: true
+  value: master
+- name: KOJI_DOJO_MAIN_BRANCH
+  displayName: Name of the main branch.
+  description: If KOJI_MAIN_BRANCH equals KOJI_GIT_REF, publishing steps will be automatically performed.
+  value: master
+  required: true
 - name: KOJI_GIT_REPO
   displayName: Koji Git repo URL
   description: Default WaiverDB Git repo URL in which to run dev tests against
   required: true
-  # value: "https://pagure.io/koji.git"
-  value: https://github.com/LynnZhuang/koji-dojo.git
+  value: "https://pagure.io/koji.git"
 - name: KOJI_GIT_REF
   displayName: Koji Git repo ref
   description: Default koji Git repo ref in which to run dev tests against
@@ -54,8 +68,8 @@ parameters:
 - name: JENKINS_AGENT_IMAGE
   displayName: Container image for Jenkins slave pods
   required: true
-  # value: docker-registry.engineering.redhat.com/lzhuang/koji-jenkins-slave:latest
-  value: docker-registry.engineering.redhat.com/factory2/waiverdb-jenkins-slave:latest
+  value: docker-registry.engineering.redhat.com/lzhuang/koji-jenkins-slave:latest
+  # value: docker-registry.engineering.redhat.com/factory2/waiverdb-jenkins-slave:latest
 - name: KOJI_DEV_IMAGE_DESTINATIONS
   displayName: Comma seperated list of container repository/tag to which the built WaiverDB dev image will be pushed
   description: OpenShift registries must be prefixed with 'atomic:'
@@ -120,8 +134,8 @@ objects:
        cpu: "500m"
     source:
       git:
-        uri: "${KOJI_GIT_REPO}"
-        ref: "${KOJI_GIT_REF}"
+        uri: "${KOJI_DOJO_GIT_REPO}"
+        ref: "${KOJI_DOJO_GIT_REF}"
     output:
       to:
         kind: "DockerImage"
@@ -159,14 +173,18 @@ objects:
     completionDeadlineSeconds: 1800
     source:
       git:
-        uri: "${KOJI_GIT_REPO}"
-        ref: "${KOJI_GIT_REF}"
+        uri: "${KOJI_DOJO_GIT_REPO}"
+        ref: "${KOJI_DOJO_GIT_REF}"
     strategy:
       type: JenkinsPipeline
       jenkinsPipelineStrategy:
         env:
         - name: "KOJI_GIT_REPO"
           value: "${KOJI_GIT_REPO}"
+        - name: "KOJI_GIT_REF"
+          value: "${KOJI_GIT_REF}"
+        - name: "KOJI_DOJO_GIT_REPO"
+          value: "${KOJI_DOJO_GIT_REPO}"
         - name: "KOJI_GIT_REF"
           value: "${KOJI_GIT_REF}"
         - name: "JENKINS_AGENT_CLOUD_NAME"
@@ -197,6 +215,8 @@ objects:
           value: "${PAGURE_DOC_SECRET}"
         - name: "KOJI_MAIN_BRANCH"
           value: "${KOJI_MAIN_BRANCH}"
+        - name: "KOJI_DOJO_MAIN_BRANCH"
+          value: "${KOJI_DOJO_MAIN_BRANCH}"
         - name: "KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAME"
           value: "${KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAME}"
         - name: "KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAMESPACE"
