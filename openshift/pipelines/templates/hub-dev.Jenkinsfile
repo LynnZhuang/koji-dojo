@@ -53,7 +53,7 @@ pipeline {
           //   echo 'parameter build_dispaly_rename_to...'
           //   currentBuild.displayName = params.BUILD_DISPLAY_RENAME_TO
           // }
-          sh(script: 'echo -en "$KOJI_GIT_REF\n$KOJI_GIT_REPO"')
+          sh(script: 'echo -en "$KOJI_GIT_REF\n$KOJI_GIT_REPO\n$KOJI_REPO_DIR"')
           dir: "$KOJI_REPO_DIR"
           sh(script: pwd)
           def scmVars = checkout([$class: 'GitSCM',
