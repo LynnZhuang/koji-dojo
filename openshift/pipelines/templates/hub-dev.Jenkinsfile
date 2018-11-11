@@ -60,11 +60,6 @@ pipeline {
           ])
           echo 'end git checkout'
           env.KOJI_GIT_COMMIT_ID = scmVars.GIT_COMMIT
-          // Generate a version-release number for the target Git commit
-          // def versions = sh(returnStdout: true, script: 'source ./version.sh && echo -en "$KOJI_VERSION\n$KOJI_CONTAINER_VERSION"').split('\n')
-          // env.KOJI_VERSION = versions[0]
-          // env.KOJI_CONTAINER_VERSION = versions[1]
-          // env.TEMP_TAG = env.KOJI_CONTAINER_VERSION + '-jenkins-' + currentBuild.id
         }
       }
     }
@@ -90,6 +85,7 @@ pipeline {
         // create a database role
         // sh 'psql -h 127.0.0.1 -U "postgres" -q -d "waiverdb" -c "CREATE ROLE \"$PIPELINE_USERNAME\" WITH LOGIN SUPERUSER;"'
         // run unit tests
+        sh(script: 'pwd')
         make test
       }
       // post {
