@@ -54,6 +54,8 @@ pipeline {
           //   currentBuild.displayName = params.BUILD_DISPLAY_RENAME_TO
           // }
           sh(script: 'echo -en "$KOJI_GIT_REF\n$KOJI_GIT_REPO"')
+          dir: "$KOJI_REPO_DIR"
+          sh(script: pwd)
           def scmVars = checkout([$class: 'GitSCM',
             branches: [[name: params.KOJI_GIT_REF]],
             userRemoteConfigs: [[url: params.KOJI_GIT_REPO]],
