@@ -88,6 +88,7 @@ pipeline {
         // run unit tests
         sh(script: 'pwd')
         dir ("$KOJI_REPO_DIR"){
+            sh(script: 'ls')
             sh(script: 'make test')
             }
         }
