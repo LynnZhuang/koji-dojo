@@ -46,8 +46,8 @@ objects:
     source:
       contextDir: hub
       git:
-        ref: ${KOJI_DOJO_BRANCH}
-        uri: ${KOJI_DOJO_REMOTE}
+        ref: master
+        uri: https://github.com/LynnZhuang/koji-dojo
       type: Git
     strategy:
       dockerStrategy:
