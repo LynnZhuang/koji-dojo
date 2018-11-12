@@ -60,6 +60,7 @@ pipeline {
         // run unit tests
         sh(script: 'sed -i "/    \\/usr\\/\\*/d" /usr/local/src/koji/.coveragerc')
         sh(script: 'cd /usr/local/src/koji && make test')
+      }
     }
     stage('Build container') {
       environment {
