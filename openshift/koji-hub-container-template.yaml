@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: koji
+objects:
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: koji-dojo-config
+  data:
+    koji.git.url: https://pagure.io/koji.git
+    koji.git.branch: master
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: hub-koji-claim
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 1Gi
+    storageClassName: glusterfs-storage
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    creationTimestamp: null
+    name: hub
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: koji-hub:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      contextDir: hub
+      git:
+        ref: ${KOJI_DOJO_BRANCH}
+        uri: ${KOJI_DOJO_REMOTE}
+      type: Git
+    strategy:
+      dockerStrategy:
+        noCache: true
+      type: Docker
+    triggers: []
+  status:
+    lastVersion: 0
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    creationTimestamp: null
+    generation: 1
+    name: koji-hub
+parameters:
+  - name: KOJI_DOJO_REMOTE
+    displayName: Remote for koji dojo
+    value: https://github.com/LynnZhuang/koji-dojo
+    required: true
+  - name: KOJI_DOJO_BRANCH
+    displayName: koji dojo branch
+    value: master
+    required: true
