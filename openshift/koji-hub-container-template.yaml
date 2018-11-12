@@ -73,6 +73,6 @@ parameters:
     displayName: koji dojo branch
     value: master
     required: true
-  -name: KOJI_IMAGESTREAM_NAMESPACE
+  - name: KOJI_IMAGESTREAM_NAMESPACE
     displayName: Namespace of ImageStream for koji hub container images
     required: false
