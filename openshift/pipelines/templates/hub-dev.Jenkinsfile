@@ -88,7 +88,7 @@ pipeline {
         // run unit tests
         sh(script: 'pwd')
         sh(script: 'ls /usr/local/src/koji')
-        sh(script: 'sed -i "/    \/usr\/\*/d" /usr/local/src/koji/.coveragerc')
+        sh(script: 'sed -i "/    \\\/usr\\\/\\\*/d" /usr/local/src/koji/.coveragerc')
         sh(script: 'cd /usr/local/src/koji && make test')
         // dir ("$KOJI_REPO_DIR"){
         //     echo 'Running unit test in /usr/local/src/koji...'
