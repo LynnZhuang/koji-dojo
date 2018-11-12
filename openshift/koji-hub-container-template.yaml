@@ -3,6 +3,18 @@ kind: Template
 metadata:
   creationTimestamp: null
   name: koji
+parameters:
+  - name: KOJI_DOJO_REMOTE
+    displayName: Remote for koji dojo
+    value: https://github.com/LynnZhuang/koji-dojo
+    required: true
+  - name: KOJI_DOJO_BRANCH
+    displayName: koji dojo branch
+    value: master
+    required: true
+  - name: KOJI_IMAGESTREAM_NAMESPACE
+    displayName: Namespace of ImageStream for koji hub container images
+    required: false
 objects:
 - apiVersion: v1
   kind: ConfigMap
@@ -46,8 +58,8 @@ objects:
     source:
       contextDir: hub
       git:
-        ref: master
-        uri: https://github.com/LynnZhuang/koji-dojo
+        ref: "${KOJI_DOJO_BRANCH}"
+        uri: "${KOJI_DOJO_REMOTE}"
       type: Git
     strategy:
       dockerStrategy:
@@ -64,15 +76,3 @@ objects:
     creationTimestamp: null
     generation: 1
     name: koji-hub
-parameters:
-  - name: KOJI_DOJO_REMOTE
-    displayName: Remote for koji dojo
-    value: https://github.com/LynnZhuang/koji-dojo
-    required: true
-  - name: KOJI_DOJO_BRANCH
-    displayName: koji dojo branch
-    value: master
-    required: true
-  - name: KOJI_IMAGESTREAM_NAMESPACE
-    displayName: Namespace of ImageStream for koji hub container images
-    required: false
