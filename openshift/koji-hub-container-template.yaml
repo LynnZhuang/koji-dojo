@@ -33,8 +33,15 @@ objects:
       to:
         kind: ImageStreamTag
         name: koji-hub:latest
+        namespace: "${KOJI_IMAGESTREAM_NAMESPACE}"
     postCommit: {}
-    resources: {}
+    resources:
+      requests:
+        memory: "768Mi"
+        cpu: "300m"
+      limits:
+       memory: "1Gi"
+       cpu: "500m"
     runPolicy: Serial
     source:
       contextDir: hub
@@ -45,6 +52,8 @@ objects:
     strategy:
       dockerStrategy:
         noCache: true
+        forcePull: true
+        dockerfilePath: hub/Dockerfile
       type: Docker
     triggers: []
   status:
@@ -64,3 +73,6 @@ parameters:
     displayName: koji dojo branch
     value: master
     required: true
+  -name: KOJI_IMAGESTREAM_NAMESPACE
+    displayName: Namespace of ImageStream for koji hub container images
+    required: false

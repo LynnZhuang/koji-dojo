@@ -62,13 +62,10 @@ RUN yum -y update && \
     ; yum clean all
 
 # install
-RUN mkdir -p /usr/local/src \
-  && git clone "$KOJI_GIT_REPO" /usr/local/src/koji \
-  && cd /usr/local/src/koji \
-  && git fetch origin "$KOJI_GIT_REF" \
-  && git checkout -f "$KOJI_GIT_REF" \
+RUN mkdir -p /usr/local/src/koji
+COPY /usr/local/src/koji/. /usr/local/src/koji/
   # modify httpd port, 80 to 8080
-  && sed -i "s/port == '80'/port == '8080'/g" ./www/kojiweb/index.py \
+RUN sed -i "s/port == '80'/port == '8080'/g" ./www/kojiweb/index.py \
   && rm -rf noarch \
   && make test-rpm \
   && yum -y localinstall noarch/koji-hub*.rpm noarch/koji-1.*.rpm noarch/koji-web*.rpm noarch/python2-koji*.rpm \

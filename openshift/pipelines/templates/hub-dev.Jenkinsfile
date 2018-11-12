@@ -46,62 +46,20 @@ pipeline {
   stages {
     stage('Prepare') {
       steps {
-        echo 'Step Prepare......'
         script {
-          echo 'script....'
-          // if (params.BUILD_DISPLAY_RENAME_TO) {
-          //   echo 'parameter build_dispaly_rename_to...'
-          //   currentBuild.displayName = params.BUILD_DISPLAY_RENAME_TO
-          // }
-          sh(script: 'echo -en "$KOJI_GIT_REF\n$KOJI_GIT_REPO\n$KOJI_REPO_DIR"')
           dir ("$KOJI_REPO_DIR"){
                 def scmVars = checkout([$class: 'GitSCM',
                 branches: [[name: params.KOJI_GIT_REF]],
                 userRemoteConfigs: [[url: params.KOJI_GIT_REPO]],
           ])}
-          echo 'end git checkout'
-          // env.KOJI_GIT_COMMIT_ID = scmVars.GIT_COMMIT
         }
       }
     }
-    // stage('Run checks') {
-    //   failFast false
-    //   parallel {
-    //     stage('Invoke Flake8') {
-    //       steps {
-    //         sh 'flake8'
-    //       }
-    //     }
-    //     stage('Invoke Pylint') {
-    //       steps {
-    //         sh 'pylint-3 --reports=n waiverdb'
-    //       }
-    //     }
-    //   }
-    // }
     stage('Run unit tests') {
       steps {
-        // wait for the test datebase to come up
-        // sh 'wait-for-it -s -t 300 127.0.0.1:5432'
-        // create a database role
-        // sh 'psql -h 127.0.0.1 -U "postgres" -q -d "waiverdb" -c "CREATE ROLE \"$PIPELINE_USERNAME\" WITH LOGIN SUPERUSER;"'
         // run unit tests
-        sh(script: 'pwd')
-        sh(script: 'ls /usr/local/src/koji')
         sh(script: 'sed -i "/    \\/usr\\/\\*/d" /usr/local/src/koji/.coveragerc')
         sh(script: 'cd /usr/local/src/koji && make test')
-        // dir ("$KOJI_REPO_DIR"){
-        //     echo 'Running unit test in /usr/local/src/koji...'
-        //     sh(script: 'pwd')
-        //     sh(script: 'make test')
-        //     echo 'end of unit test'
-        //     }
-        }
-      // post {
-      //   always {
-      //     junit 'junit-tests.xml'
-      //   }
-      // }
     }
     stage('Build container') {
       environment {
