@@ -109,6 +109,10 @@ parameters:
   displayName: Whether to tag the pushed image as dev
   value: "true"
   required: true
+- name: KOJI_REPO_DIR
+  displayName: Directory of KOJI repo
+  value: "/usr/local/src/koji"
+  required: true
 labels:
   template: koji-dev
 objects:
@@ -223,4 +227,6 @@ objects:
           value: "${KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAMESPACE}"
         # - name: BUILD_DISPLAY_RENAME_TO
         #   value: ""
+        - name: "KOJI_REPO_DIR"
+          value: "${KOJI_REPO_DIR}"
         jenkinsfilePath: openshift/pipelines/templates/hub-dev.Jenkinsfile
