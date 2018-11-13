@@ -65,7 +65,7 @@ objects:
       dockerStrategy:
         noCache: true
         forcePull: true
-        dockerfilePath: hub/Dockerfile
+        # dockerfilePath: hub/Dockerfile
       type: Docker
     triggers: []
   status:
