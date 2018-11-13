@@ -66,6 +66,8 @@ RUN mkdir -p /usr/local/src/koji
 # COPY /usr/local/src/koji/. /usr/local/src/koji/
 COPY . /usr/local/src/koji/
 RUN echo $(ls -l /usr/local/src/koji/)
+RUN echo $(pwd)
+RUN echo $(hostname)
   # modify httpd port, 80 to 8080
 RUN sed -i "s/port == '80'/port == '8080'/g" ./www/kojiweb/index.py \
   && rm -rf noarch \
