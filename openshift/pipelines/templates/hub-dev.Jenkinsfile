@@ -21,10 +21,10 @@ pipeline {
           tty: true
           env:
           - name: REGISTRY_CREDENTIALS
-           valueFrom:
-             secretKeyRef:
-               name: "${params.CONTAINER_QUAY_CREDENTIALS}"
-               key: '.dockerconfigjson'
+            valueFrom:
+              secretKeyRef:
+                name: "${params.CONTAINER_QUAY_CREDENTIALS}"
+                key: '.dockerconfigjson'
           resources:
             requests:
               memory: 768Mi
