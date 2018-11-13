@@ -56,8 +56,8 @@ pipeline {
                 env.KOJI_GIT_COMMIT = commitHash
                 echo "End of checkout..."
                 // Generate a version-release number for the target Git commit
-                script: 'pwd'
-                sh(script: 'ls')
+                sh('pwd')
+                sh(ls)
                 def versions = sh(returnStdout: true, script: 'source ./version.sh && echo -en "$KOJI_VERSION\n$KOJI_CONTAINER_VERSION"').split('\n')
                 echo "Finish running sh script..."
                 env.KOJI_VERSION = versions[0]
