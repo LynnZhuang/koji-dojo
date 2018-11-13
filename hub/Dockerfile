@@ -64,6 +64,7 @@ RUN yum -y update && \
 
 # install
 RUN echo $KOJI_GIT_COMMIT
+RUN echo $KOJI_GIT_REPO
 RUN mkdir -p /usr/local/src \
   && git clone "$KOJI_GIT_REPO" /usr/local/src/koji \
   && cd /usr/local/src/koji \
