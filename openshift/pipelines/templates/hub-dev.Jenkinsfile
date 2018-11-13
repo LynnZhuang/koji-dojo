@@ -51,7 +51,10 @@ pipeline {
                 def scmVars = checkout([$class: 'GitSCM',
                 branches: [[name: params.KOJI_GIT_REF]],
                 userRemoteConfigs: [[url: params.KOJI_GIT_REPO]],
-          ])}
+                ])
+                def commitHash = scmVars.GIT_COMMIT
+                env.KOJI_GIT_COMMIT = commitHash
+          }
         }
       }
     }
@@ -76,7 +79,8 @@ pipeline {
             def template = readYaml file: 'openshift/koji-hub-container-template.yaml'
             def processed = openshift.process(template,
               "-p", "KOJI_DOJO_REMOTE=${params.KOJI_DOJO_GIT_REPO}",
-              '-p', "KOJI_DOJO_BRANCH=${params.KOJI_DOJO_MAIN_BRANCH}",
+              "-p", "KOJI_DOJO_BRANCH=${params.KOJI_DOJO_MAIN_BRANCH}",
+              "-p", "KOJI_GIT_COMMIT"=${env.KOJI_GIT_COMMIT},
             )
             def created = openshift.apply(processed)
             def bc = created.narrow('bc')

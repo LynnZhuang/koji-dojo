@@ -13,6 +13,7 @@ ARG ADDITIONAL_REPOS=
 
 ARG KOJI_GIT_REPO=https://pagure.io/koji.git
 ARG KOJI_GIT_REF=master
+ARG KOJI_GIT_COMMIT
 
 #RUN sed -i '/excludedocs/d' /etc/rpm/macros.imgcreate
 RUN sed -i '/nodocs/d' /etc/yum.conf

@@ -12,6 +12,10 @@ parameters:
     displayName: koji dojo branch
     value: master
     required: true
+  - name: KOJI_GIT_COMMIT
+    displayName: koji git commit
+    value: ${KOJI_GIT_COMMIT}
+    required: true
   - name: KOJI_IMAGESTREAM_NAMESPACE
     displayName: Namespace of ImageStream for koji hub container images
     required: false
