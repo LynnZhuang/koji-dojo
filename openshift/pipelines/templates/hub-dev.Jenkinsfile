@@ -75,8 +75,8 @@ pipeline {
             echo 'Creating a BuildConfig for container build...'
             def template = readYaml file: 'openshift/koji-hub-container-template.yaml'
             def processed = openshift.process(template,
-              "-p", "KOJI_DOJO_REMOTE=${params.KOJI_DOJO_REMOTE}",
-              '-p', "KOJI_DOJO_BRANCH=${params.KOJI_DOJO_BRANCH}",
+              "-p", "KOJI_DOJO_REMOTE=${params.KOJI_DOJO_GIT_REPO}",
+              '-p', "KOJI_DOJO_BRANCH=${params.KOJI_DOJO_MAIN_BRANCH}",
             )
             def created = openshift.apply(processed)
             def bc = created.narrow('bc')
