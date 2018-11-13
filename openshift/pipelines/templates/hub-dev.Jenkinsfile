@@ -54,8 +54,10 @@ pipeline {
                 ])
                 def commitHash = scmVars.GIT_COMMIT
                 env.KOJI_GIT_COMMIT = commitHash
+                echo "End of checkout..."
                 // Generate a version-release number for the target Git commit
                 def versions = sh(returnStdout: true, script: 'source ./version.sh && echo -en "$KOJI_VERSION\n$KOJI_CONTAINER_VERSION"').split('\n')
+                echo "Finish running sh script..."
                 env.KOJI_VERSION = versions[0]
                 env.KOJI_CONTAINER_VERSION = versions[1]
                 env.TEMP_TAG = env.KOJI_CONTAINER_VERSION + '-jenkins-' + currentBuild.id
