@@ -79,6 +79,10 @@ parameters:
   displayName: Secret name of container registries used for pulling and pushing images
   value: lzhuang-koji-hub
   required: false
+- name: CONTAINER_QUAY_CREDENTIALS
+  displayName: Secret name of container registries used for pulling and pushing images
+  value: quay-koji-hub
+  required: false
 - name: KOJIHUB_DEV_IMAGE_TAG
   displayName: Tag name of the resulting container image for development environment
   value: "latest"

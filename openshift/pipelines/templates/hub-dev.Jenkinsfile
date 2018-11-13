@@ -19,12 +19,12 @@ pipeline {
           image: "${params.JENKINS_AGENT_IMAGE}"
           imagePullPolicy: Always
           tty: true
-          // env:
-          // - name: REGISTRY_CREDENTIALS
-          //   valueFrom:
-          //     secretKeyRef:
-          //       name: "${params.CONTAINER_REGISTRY_CREDENTIALS}"
-          //       key: '.dockerconfigjson'
+          env:
+          - name: REGISTRY_CREDENTIALS
+           valueFrom:
+             secretKeyRef:
+               name: "${params.CONTAINER_QUAY_CREDENTIALS}"
+               key: '.dockerconfigjson'
           resources:
             requests:
               memory: 768Mi
@@ -54,6 +54,11 @@ pipeline {
                 ])
                 def commitHash = scmVars.GIT_COMMIT
                 env.KOJI_GIT_COMMIT = commitHash
+                // Generate a version-release number for the target Git commit
+                def versions = sh(returnStdout: true, script: 'source ./version.sh && echo -en "$KOJI_VERSION\n$KOJI_CONTAINER_VERSION"').split('\n')
+                env.KOJI_VERSION = versions[0]
+                env.KOJI_CONTAINER_VERSION = versions[1]
+                env.TEMP_TAG = env.KOJI_CONTAINER_VERSION + '-jenkins-' + currentBuild.id
           }
         }
       }
