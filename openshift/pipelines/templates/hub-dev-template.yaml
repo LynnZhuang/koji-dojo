@@ -74,7 +74,7 @@ parameters:
   displayName: Comma seperated list of container repository/tag to which the built WaiverDB dev image will be pushed
   description: OpenShift registries must be prefixed with 'atomic:'
   required: false
-  value: "atomic:quay.io/factory2/kojihub:latest"
+  value: "quay.io/factory2/koji-hub:latest"
 - name: CONTAINER_REGISTRY_CREDENTIALS
   displayName: Secret name of container registries used for pulling and pushing images
   value: lzhuang-koji-hub
@@ -91,9 +91,10 @@ parameters:
   displayName: Name of ImageStream for kojihub container images
   required: true
   value: koji-hub
-- name: KOJIHUB_IMAGESTREAM_NAMESPACE
-  displayName: Namespace of ImageStream for kojihub container images
+- name: KOJI_IMAGESTREAM_NAMESPACE
+  displayName: Namespace of ImageStream for koji container images
   required: false
+  value: brew-test
 - name: WAIVERDB_INTEGRATION_TEST_BUILD_CONFIG_NAME
   displayName: Name of BuildConfig for running integration tests
   required: true
@@ -235,4 +236,8 @@ objects:
           value: "${KOJI_REPO_DIR}"
         - name: "CONTAINER_QUAY_CREDENTIALS"
           value: "${CONTAINER_QUAY_CREDENTIALS}"
+        - name: KOJIHUB_IMAGESTREAM_NAME
+          value: "${KOJIHUB_IMAGESTREAM_NAME}"
+        - name: KOJI_IMAGESTREAM_NAMESPACE
+          value: "${KOJI_IMAGESTREAM_NAMESPACE}"
         jenkinsfilePath: openshift/pipelines/templates/hub-dev.Jenkinsfile

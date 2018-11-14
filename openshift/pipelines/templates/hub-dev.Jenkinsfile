@@ -88,9 +88,9 @@ pipeline {
             def processed = openshift.process(template,
               "-p", "KOJI_DOJO_REMOTE=${params.KOJI_DOJO_GIT_REPO}",
               "-p", "KOJI_DOJO_BRANCH=${params.KOJI_DOJO_MAIN_BRANCH}",
+              "-p", "KOJI_IMAGE_TAG=${env.TEMP_TAG}",
               "-p", "KOJI_GIT_COMMIT=${env.KOJI_GIT_COMMIT}",
               "-p", "KOJI_IMAGESTREAM_NAME=${params.KOJIHUB_IMAGESTREAM_NAME}",
-              "-p", "KOJI_IMAGE_TAG=${env.TEMP_TAG}",
             )
             def created = openshift.apply(processed)
             def bc = created.narrow('bc')
@@ -217,7 +217,7 @@ pipeline {
       steps {
         script {
           openshift.withCluster() {
-            openshift.withProject("${params.KOJIHUB_IMAGESTREAM_NAMESPACE}") {
+            openshift.withProject("${params.KOJI_IMAGESTREAM_NAMESPACE}") {
               def sourceRef = "${params.KOJIHUB_IMAGESTREAM_NAME}:${env.RESULTING_TAG}"
               def destRef = "${params.KOJIHUB_IMAGESTREAM_NAME}:${params.KOJIHUB_DEV_IMAGE_TAG}"
               echo "Tagging ${sourceRef} as ${destRef}..."
@@ -234,7 +234,7 @@ pipeline {
         if (env.RESULTING_TAG) {
           echo "Removing tag ${env.RESULTING_TAG} from the ImageStream..."
           openshift.withCluster() {
-            openshift.withProject("${params.KOJIHUB_IMAGESTREAM_NAMESPACE}") {
+            openshift.withProject("${params.KOJI_IMAGESTREAM_NAMESPACE}") {
               openshift.tag("${params.KOJIHUB_IMAGESTREAM_NAME}:${env.RESULTING_TAG}",
                 "-d")
             }
