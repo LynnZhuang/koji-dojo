@@ -62,6 +62,7 @@ pipeline {
           env.KOJI_VERSION = versions[0]
           env.KOJI_CONTAINER_VERSION = versions[1]
           env.TEMP_TAG = env.KOJI_CONTAINER_VERSION + '-jenkins-' + currentBuild.id
+          echo "${env.TEMP_TAG}"
         }
       }
     }

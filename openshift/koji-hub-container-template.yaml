@@ -52,7 +52,7 @@ objects:
     output:
       to:
         kind: ImageStreamTag
-        name: hub:"${KOJI_IMAGE_TAG}"
+        name: koji-hub:"${KOJI_IMAGE_TAG}"
         namespace: "${KOJI_IMAGESTREAM_NAMESPACE}"
     postCommit: {}
     resources:
