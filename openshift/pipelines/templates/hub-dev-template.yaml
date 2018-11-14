@@ -233,4 +233,6 @@ objects:
         #   value: ""
         - name: "KOJI_REPO_DIR"
           value: "${KOJI_REPO_DIR}"
+        - name: "CONTAINER_QUAY_CREDENTIALS"
+          value: "${CONTAINER_QUAY_CREDENTIALS}"
         jenkinsfilePath: openshift/pipelines/templates/hub-dev.Jenkinsfile
