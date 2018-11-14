@@ -19,6 +19,10 @@ parameters:
   - name: KOJI_IMAGESTREAM_NAMESPACE
     displayName: Namespace of ImageStream for koji hub container images
     required: false
+  - name: KOJI_IMAGE_TAG
+    displayName: Tag of resulting image
+    value: latest
+    required: true
 objects:
 - apiVersion: v1
   kind: ConfigMap
