@@ -90,7 +90,7 @@ pipeline {
               "-p", "KOJI_DOJO_REMOTE=${params.KOJI_DOJO_GIT_REPO}",
               "-p", "KOJI_DOJO_BRANCH=${params.KOJI_DOJO_MAIN_BRANCH}",
               "-p", "KOJI_GIT_COMMIT=${env.KOJI_GIT_COMMIT}",
-              "-p", "KOJI_IMAGE_TAG"=${env.TEMP_TAG},
+              "-p", "KOJI_IMAGE_TAG=${env.TEMP_TAG}",
             )
             def created = openshift.apply(processed)
             def bc = created.narrow('bc')
