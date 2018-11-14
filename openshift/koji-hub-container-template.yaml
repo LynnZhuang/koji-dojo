@@ -23,6 +23,10 @@ parameters:
     displayName: Tag of resulting image
     value: latest
     required: true
+  - name: KOJI_IMAGESTREAM_NAME
+    displayName: ImageStream name of the resulting image
+    required: true
+    value: koji-hub
 objects:
 - apiVersion: v1
   kind: ConfigMap
@@ -52,7 +56,7 @@ objects:
     output:
       to:
         kind: ImageStreamTag
-        name: kojihub:"${KOJI_IMAGE_TAG}"
+        name: "${KOJI_IMAGESTREAM_NAME}:${KOJI_IMAGE_TAG}"
         namespace: "${KOJI_IMAGESTREAM_NAMESPACE}"
     postCommit: {}
     resources:

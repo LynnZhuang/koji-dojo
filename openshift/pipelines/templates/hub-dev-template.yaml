@@ -90,7 +90,7 @@ parameters:
 - name: KOJIHUB_IMAGESTREAM_NAME
   displayName: Name of ImageStream for kojihub container images
   required: true
-  value: kojihub
+  value: koji-hub
 - name: KOJIHUB_IMAGESTREAM_NAMESPACE
   displayName: Namespace of ImageStream for kojihub container images
   required: false
