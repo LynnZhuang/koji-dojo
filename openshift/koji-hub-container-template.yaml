@@ -56,7 +56,8 @@ objects:
     output:
       to:
         kind: ImageStreamTag
-        name: "${KOJI_IMAGESTREAM_NAME}:${KOJI_IMAGE_TAG}"
+        # name: "${KOJI_IMAGESTREAM_NAME}:${KOJI_IMAGE_TAG}"
+        name: koji-hub:0.1.dev213-git.f4e8bbe-jenkins-81
         namespace: "${KOJI_IMAGESTREAM_NAMESPACE}"
     postCommit: {}
     resources:
