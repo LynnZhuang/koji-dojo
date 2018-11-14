@@ -174,6 +174,7 @@ pipeline {
             // pull the built image from imagestream
             echo "Pulling container from ${sourceImage}..."
             def registryToken = readFile(file: '/var/run/secrets/kubernetes.io/serviceaccount/token')
+            echo "${registryToken}"
             withEnv(["SOURCE_IMAGE_REF=${sourceImage}", "TOKEN=${registryToken}"]) {
               sh '''set -e +x # hide the token from Jenkins console
               mkdir -p _build
