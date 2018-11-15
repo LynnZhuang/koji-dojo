@@ -1,16 +1,10 @@
-# Template to produce a new WaiverDB dev CI/CD pipeline in OpenShift.
+# Template to produce a new koji hub dev CI/CD pipeline in OpenShift.
 #
-# Dev pipeline is a part of the WaiverDB Pipeline, covers the following steps:
+# Dev pipeline is a part of the koji hub Pipeline, covers the following steps:
 #
-# - Run Flake8 and Pylint checks (?)
 # - Run unit tests
-# - Build Docs (?)
-# - Publish Docs (?)
-# - Build SRPM (?)
-# - Build RPM (?)
-# - Invoke Rpmlint (?)
 # - Build container
-# - Run functional tests
+# - Run functional tests(No functional testcases yet)
 # - Push container
 #
 # Required Jenkins Plugins:
@@ -69,12 +63,11 @@ parameters:
   displayName: Container image for Jenkins slave pods
   required: true
   value: docker-registry.engineering.redhat.com/lzhuang/koji-jenkins-slave:latest
-  # value: docker-registry.engineering.redhat.com/factory2/waiverdb-jenkins-slave:latest
 - name: KOJI_DEV_IMAGE_DESTINATIONS
   displayName: Comma seperated list of container repository/tag to which the built WaiverDB dev image will be pushed
   description: OpenShift registries must be prefixed with 'atomic:'
   required: false
-  value: "quay.io/factory2/koji-hub:latest"
+  value: "quay.io/factory2/koji:latest"
 - name: CONTAINER_REGISTRY_CREDENTIALS
   displayName: Secret name of container registries used for pulling and pushing images
   value: lzhuang-koji-hub
@@ -85,7 +78,7 @@ parameters:
   required: false
 - name: KOJIHUB_DEV_IMAGE_TAG
   displayName: Tag name of the resulting container image for development environment
-  value: "latest"
+  value: latest
   required: true
 - name: KOJIHUB_IMAGESTREAM_NAME
   displayName: Name of ImageStream for kojihub container images
@@ -95,19 +88,15 @@ parameters:
   displayName: Namespace of ImageStream for koji container images
   required: false
   value: brew-test
-- name: WAIVERDB_INTEGRATION_TEST_BUILD_CONFIG_NAME
+- name: KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAME
   displayName: Name of BuildConfig for running integration tests
   required: true
   value: koji-integration-test
-# - name: KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAMESPACE
-#   displayName: Namespace of BuildConfig for running integration tests
-#   required: false
+- name: KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAMESPACE
+  displayName: Namespace of BuildConfig for running integration tests
+  required: false
 - name: FORCE_PUBLISH_IMAGE
   displayName: Whether to push the resulting image regardless of the Git branch
-  value: "false"
-  required: true
-- name: FORCE_PUBLISH_DOCS
-  displayName: Whether to publish docs regardless of the Git branch
   value: "false"
   required: true
 - name: TAG_INTO_IMAGESTREAM
@@ -194,8 +183,8 @@ objects:
           value: "${KOJI_GIT_REF}"
         - name: "KOJI_DOJO_GIT_REPO"
           value: "${KOJI_DOJO_GIT_REPO}"
-        - name: "KOJI_GIT_REF"
-          value: "${KOJI_GIT_REF}"
+        - name: "KOJI_DOJO_GIT_REF"
+          value: "${KOJI_DOJO_GIT_REF}"
         - name: "JENKINS_AGENT_CLOUD_NAME"
           value: "${JENKINS_AGENT_CLOUD_NAME}"
         - name: "JENKINS_AGENT_IMAGE"
@@ -210,18 +199,10 @@ objects:
           value: "${FORCE_PUBLISH_IMAGE}"
         - name: "TAG_INTO_IMAGESTREAM"
           value: "${TAG_INTO_IMAGESTREAM}"
-        - name: "KOJI_DEV_IMAGE_TAG"
-          value: "${KOJI_DEV_IMAGE_TAG}"
+        - name: "KOJIHUB_DEV_IMAGE_TAG"
+          value: "${KOJIHUB_DEV_IMAGE_TAG}"
         - name: "KOJI_IMAGESTREAM_NAME"
           value: "${KOJI_IMAGESTREAM_NAME}"
-        - name: "KOJI_IMAGESTREAM_NAMESPACE"
-          value: "${KOJI_IMAGESTREAM_NAMESPACE}"
-        - name: "FORCE_PUBLISH_DOCS"
-          value: "${FORCE_PUBLISH_DOCS}"
-        - name: "PAGURE_DOC_REPO_NAME"
-          value: "${PAGURE_DOC_REPO_NAME}"
-        - name: "PAGURE_DOC_SECRET"
-          value: "${PAGURE_DOC_SECRET}"
         - name: "KOJI_MAIN_BRANCH"
           value: "${KOJI_MAIN_BRANCH}"
         - name: "KOJI_DOJO_MAIN_BRANCH"
@@ -230,8 +211,6 @@ objects:
           value: "${KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAME}"
         - name: "KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAMESPACE"
           value: "${KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAMESPACE}"
-        # - name: BUILD_DISPLAY_RENAME_TO
-        #   value: ""
         - name: "KOJI_REPO_DIR"
           value: "${KOJI_REPO_DIR}"
         - name: "CONTAINER_QUAY_CREDENTIALS"
