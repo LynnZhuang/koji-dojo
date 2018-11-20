@@ -65,12 +65,13 @@ pipeline {
             timeout(15) {
               pods.untilEach(webPodReplicas + 1) {
                 def pod = it.object()
-                echo '........${pod}'
+                echo "1...Test pod ${pod.metadata.name}. Current phase is ${pod.status.phase}, ${pod.status.conditions}."
                 if (pod.status.phase in ["New", "Pending", "Unknown"]) {
                   return false
                 }
                 if (pod.status.phase == "Running") {
                   for (cond in pod.status.conditions) {
+                      echo "2...Test pod ${pod.metadata.name}. Current phase is ${pod.status.phase}, ${pod.status.conditions}."
                       if (cond.type == 'Ready' && cond.status == 'True') {
                           return true
                       }
