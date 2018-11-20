@@ -30,7 +30,7 @@ parameters:
   displayName: KOJI dojo Git repo URL
   description: Default KOJI dojo Git repo URL in which to run functional tests against
   required: true
-  value: "https://github.com/LynnZhuang/koji-dojo.git"
+  value: https://github.com/LynnZhuang/koji-dojo.git
 - name: KOJI_DOJO_GIT_REF
   displayName: KOJI dojo Git repo ref
   description: Default KOJI dojo Git repo ref in which to run functional tests against
@@ -66,6 +66,7 @@ objects:
     name: "${NAME}-jenkins-slave"
   roleRef:
     name: edit
+
 - kind: "BuildConfig"
   apiVersion: "v1"
   metadata:

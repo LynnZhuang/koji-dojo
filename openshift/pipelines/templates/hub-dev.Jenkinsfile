@@ -148,10 +148,35 @@ pipeline {
     }
     stage('Run functional tests') {
       steps {
-              // temporarily set functional test to PASSED as no testcase yet
-              echo 'Functional test is set to PASSED temporarily.'
+        script {
+          openshift.withCluster() {
+            openshift.withProject(params.KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAMESPACE) {
+              def testBcSelector = openshift.selector('bc', params.KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAME)
+              echo 'Starting a functional test for the built container image...'
+              def buildSelector = testBcSelector.startBuild(
+                  '-e', "IMAGE=${env.RESULTING_IMAGE_REPO}:${env.RESULTING_TAG}",
+                  )
+              echo 'Waiting for the integration test result...'
+              timeout(time: 20) { // 20 min
+                buildSelector.watch {
+                  return !(it.object().status.phase in ["New", "Pending", "Unknown"])
+                }
+                buildSelector.logs('-f')
+                buildSelector.watch {
+                  return it.object().status.phase != "Running"
+                }
+              }
+              // Assert build result
+              def ocpBuild = buildSelector.object()
+              if (ocpBuild.status.phase != "Complete") {
+                error("Functional test failed for image ${env.TEMP_TAG}, .status.phase=${ocpBuild.status.phase}.")
+              }
+              echo 'Functional test is PASSED.'
             }
           }
+        }
+      }
+    }
     stage('Push container') {
       when {
         expression {
