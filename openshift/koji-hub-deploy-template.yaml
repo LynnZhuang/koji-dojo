@@ -93,7 +93,7 @@ objects:
   spec:
     replicas: 1
     selector:
-      name: hub
+      environment: "test-${TEST_ID}"
     strategy:
       resources: {}
       rollingParams:
@@ -107,7 +107,7 @@ objects:
       metadata:
         creationTimestamp: null
         labels:
-          name: hub
+          environment: "test-${TEST_ID}"
       spec:
         containers:
         - image: "${KOJI_HUB_IMAGE_REPO}:${KOJI_HUB_VERSION}"
