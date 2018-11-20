@@ -65,6 +65,7 @@ pipeline {
             timeout(15) {
               pods.untilEach(webPodReplicas + 1) {
                 def pod = it.object()
+                echo '........${pod}'
                 if (pod.status.phase in ["New", "Pending", "Unknown"]) {
                   return false
                 }
