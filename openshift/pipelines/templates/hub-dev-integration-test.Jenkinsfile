@@ -35,7 +35,8 @@ pipeline {
     """
     }
   }
-  stage('Run functional tests') {
+  stages {
+    stage('Run functional tests') {
       environment {
         // Jenkins BUILD_TAG could be too long (> 63 characters) for OpenShift to consume
         TEST_ID = "${params.TEST_ID ?: 'jenkins-' + currentBuild.id}"
@@ -103,4 +104,5 @@ pipeline {
         }
       }
     }
+  }
 }
