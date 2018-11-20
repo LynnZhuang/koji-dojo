@@ -52,6 +52,7 @@ pipeline {
             def template = readYaml file: 'openshift/koji-hub-deploy-template.yaml'
             def webPodReplicas = 1 // The current quota in UpShift is agressively limited
             def models = openshift.process(template,
+              '-p', "TEST_ID=${env.TEST_ID}",
               '-p', "KOJI_HUB_IMAGE_REPO=${imageRepo}",
               '-p', "KOJI_HUB_VERSION=${imageTag ?: 'latest'}",
             )

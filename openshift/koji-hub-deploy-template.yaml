@@ -88,6 +88,8 @@ objects:
     creationTimestamp: null
     generation: 1
     name: hub
+    labels:
+      environment: "test-${TEST_ID}"
   spec:
     replicas: 1
     selector:
@@ -206,4 +208,7 @@ parameters:
     required: true
   - name: KOJI_HUB_VERSION
     displayName: Koji image version to be tested
+    required: true
+  - name: TEST_ID
+    displayName: Test ID
     required: true
