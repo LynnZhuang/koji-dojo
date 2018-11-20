@@ -25,6 +25,8 @@ objects:
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
+    creationTimestamp: null
+    generation: 1
     name: koji-db
   spec:
     replicas: 1
@@ -41,25 +43,26 @@ objects:
       type: Rolling
     template:
       metadata:
+        creationTimestamp: null
         labels:
           name: db
       spec:
         containers:
-        - name: koji-db
-          image: openshift/postgresql-92-centos7
-          imagePullPolicy: IfNotPresent
-          ports:
-          - containerPort: 5432
-            protocol: TCP
-          resources: {}
-          terminationMessagePath: /dev/termination-log
-          env:
+        - env:
           - name: POSTGRESQL_DATABASE
             value: koji
           - name: POSTGRESQL_USER
             value: koji
           - name: POSTGRESQL_PASSWORD
             value: mypassword
+          image: openshift/postgresql-92-centos7
+          imagePullPolicy: IfNotPresent
+          name: koji-db
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         securityContext: {}
