@@ -1,0 +1,198 @@
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: koji
+objects:
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: koji-dojo-config
+  data:
+    koji.git.url: https://pagure.io/koji.git
+    koji.git.branch: master
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: hub-koji-claim
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 1Gi
+    storageClassName: glusterfs-storage
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    creationTimestamp: null
+    generation: 1
+    name: koji-db
+  spec:
+    replicas: 1
+    selector:
+      name: db
+    strategy:
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          name: db
+      spec:
+        containers:
+        - env:
+          - name: POSTGRESQL_DATABASE
+            value: koji
+          - name: POSTGRESQL_USER
+            value: koji
+          - name: POSTGRESQL_PASSWORD
+            value: mypassword
+          image: openshift/postgresql-92-centos7
+          imagePullPolicy: IfNotPresent
+          name: koji-db
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+  status: {}
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    creationTimestamp: null
+    generation: 1
+    name: hub
+  spec:
+    replicas: 1
+    selector:
+      name: hub
+    strategy:
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          name: hub
+      spec:
+        containers:
+          image: ${KOJI_HUB_IMAGE_REPO}:${KOJI_HUB_VERSION}
+          imagePullPolicy: IfNotPresent
+          name: koji-hub
+          ports:
+          - containerPort: 22
+            protocol: TCP
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8443
+            protocol: TCP
+          resources:
+            limits:
+              memory: 1000Mi
+              cpu: 1000m
+            requests:
+              memory: 800Mi
+              cpu: 800m
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - mountPath: /opt/koji
+            name: koji-volume
+          - mountPath: /opt/koji-clients
+            name: koji-clients
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        serviceAccount: koji-sa
+        serviceAccountName: koji-sa
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: koji-volume
+          persistentVolumeClaim:
+            claimName: hub-koji-claim
+        - name: koji-clients
+          persistentVolumeClaim:
+            claimName: hub-koji-clients-claim
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - koji-hub
+        from:
+          kind: ImageStreamTag
+          name: koji-hub:latest
+      type: ImageChange
+  status: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: null
+    name: koji-db
+  spec:
+    ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+    selector:
+      name: db
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: null
+    name: koji-hub
+  spec:
+    ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    - name: https
+      port: 8443
+      protocol: TCP
+      targetPort: 8443
+    selector:
+      name: hub
+    sessionAffinity: None
+    type: ClusterIP
+parameters:
+  - name: KOJI_DOJO_REMOTE
+    displayName: Remote for koji dojo
+    value: https://github.com/LynnZhuang/koji-dojo
+    required: true
+  - name: KOJI_DOJO_BRANCH
+    displayName: koji dojo branch
+    value: master
+    required: true
+  - name: KOJI_HUB_IMAGE_REPO
+    displayName: Koji image repo to be tested
+    value: quay.io/factory2/koji
+    required: true
+  - name: KOJI_HUB_VERSION
+    displayName: Koji image version to be tested
+    required: true

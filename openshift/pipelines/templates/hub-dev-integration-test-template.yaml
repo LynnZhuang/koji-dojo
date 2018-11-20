@@ -1,0 +1,106 @@
+# Template to produce a new koji hub CI/CD pipeline for integration testing in OpenShift.
+---
+apiVersion: v1
+kind: Template
+metadata:
+  name: kojihub-integration-test
+labels:
+  template: kojihub-integration-test
+parameters:
+- name: NAME
+  displayName: Short unique identifier for the templated instances
+  description: This field is used to deploy multiple pipelines to one OpenShift project from this template.
+  required: true
+  value: kojihub-integration-test
+- name: IMAGE
+  displayName: The container image to be tested
+  description: This field must be in repo:tag or repo@sha256 format
+  value: quay.io/factory2/koji:latest
+- name: KOJI_GIT_REPO
+  displayName: KOJI Git repo URL
+  description: Default KOJI Git repo URL in which to run functional tests against
+  required: true
+  value: "https://pagure.io/koji.git"
+- name: KOJI_GIT_REF
+  displayName: KOJI Git repo ref
+  description: Default KOJI Git repo ref in which to run functional tests against
+  required: true
+  value: master
+- name: KOJI_DOJO_GIT_REPO
+  displayName: KOJI dojo Git repo URL
+  description: Default KOJI dojo Git repo URL in which to run functional tests against
+  required: true
+  value: "https://github.com/LynnZhuang/koji-dojo.git"
+- name: KOJI_DOJO_GIT_REF
+  displayName: KOJI dojo Git repo ref
+  description: Default KOJI dojo Git repo ref in which to run functional tests against
+  required: true
+  value: master
+- name: JENKINS_AGENT_IMAGE
+  displayName: Container image for Jenkins slave pods
+  required: true
+  value: docker-registry.engineering.redhat.com/lzhuang/koji-jenkins-slave:latest
+- name: CONTAINER_QUAY_CREDENTIALS
+  displayName: Secret name of container registries used for pulling and pushing images
+  value: quay-koji-hub
+  required: false
+- name: JENKINS_AGENT_CLOUD_NAME
+  displayName: Name of OpenShift cloud in Jenkins master configuration
+  required: true
+  value: openshift
+objects:
+- kind: ServiceAccount
+  apiVersion: v1
+  metadata:
+    name: "${NAME}-jenkins-slave"
+    labels:
+      app: "${NAME}"
+- kind: RoleBinding
+  apiVersion: v1
+  metadata:
+    name: "${NAME}-jenkins-slave_edit"
+    labels:
+      app: "${NAME}"
+  subjects:
+  - kind: ServiceAccount
+    name: "${NAME}-jenkins-slave"
+  roleRef:
+    name: edit
+- kind: "BuildConfig"
+  apiVersion: "v1"
+  metadata:
+    name: "${NAME}"
+    labels:
+      app: "${NAME}"
+  spec:
+    runPolicy: "Serial" # FIXME: Parallel is supported, but we have limited quota in UpShift.
+    completionDeadlineSeconds: 1800
+    source:
+      git:
+        uri: "${KOJI_DOJO_GIT_REPO}"
+        ref: "${KOJI_DOJO_GIT_REF}"
+    strategy:
+      type: JenkinsPipeline
+      jenkinsPipelineStrategy:
+        env:
+        - name: "KOJI_DOJO_GIT_REPO"
+          value: "${KOJI_DOJO_GIT_REPO}"
+        - name: "KOJI_DOJO_GIT_REF"
+          value: "${KOJI_DOJO_GIT_REF}"
+        - name: "KOJI_GIT_REPO"
+          value: "${KOJI_GIT_REPO}"
+        - name: "KOJI_GIT_REF"
+          value: "${KOJI_GIT_REF}"
+        - name: "IMAGE"
+          value: "${IMAGE}"
+        - name: "CONTAINER_QUAY_CREDENTIALS"
+          value: "${CONTAINER_QUAY_CREDENTIALS}"
+        - name: "TEST_ID"
+          value: ""
+        - name: JENKINS_AGENT_IMAGE
+          value: "${JENKINS_AGENT_IMAGE}"
+        - name: JENKINS_AGENT_CLOUD_NAME
+          value: "${JENKINS_AGENT_CLOUD_NAME}"
+        - name: JENKINS_AGENT_SERVICE_ACCOUNT
+          value: "${NAME}-jenkins-slave"
+        jenkinsfilePath: openshift/pipelines/templates/hub-dev-integration-test.Jenkinsfile
