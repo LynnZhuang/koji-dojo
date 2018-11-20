@@ -37,15 +37,13 @@ pipeline {
   }
   stages {
     stage('Run functional tests') {
-      steps{
-        echo "The test ID is: ${TEST_ID}"
-      }
       environment {
         // Jenkins BUILD_TAG could be too long (> 63 characters) for OpenShift to consume
         TEST_ID = "${params.TEST_ID ?: 'jenkins-' + currentBuild.id}"
         ENVIRONMENT_LABEL = "test-${env.TEST_ID}"
       }
       steps {
+        echo "The test ID is: ${TEST_ID}"
         echo "Container image ${params.IMAGE} will be tested."
         script {
           openshift.withCluster() {
