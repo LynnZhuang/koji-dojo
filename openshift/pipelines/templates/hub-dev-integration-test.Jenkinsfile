@@ -63,6 +63,7 @@ pipeline {
             def rm = dcs.rollout()
             def pods = openshift.selector('pods', ['environment': env.ENVIRONMENT_LABEL])
             timeout(15) {
+              echo "3...${pods}"
               pods.untilEach(webPodReplicas + 1) {
                 def pod = it.object()
                 error("1...Test pod ${pod.metadata.name}. Current phase is ${pod.status.phase}, ${pod.status.conditions}.")
