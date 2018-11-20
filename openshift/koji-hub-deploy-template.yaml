@@ -23,6 +23,17 @@ objects:
         storage: 1Gi
     storageClassName: glusterfs-storage
 - apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: hub-koji-clients-claim
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 1Gi
+    storageClassName: glusterfs-storage
+- apiVersion: v1
   kind: DeploymentConfig
   metadata:
     creationTimestamp: null
@@ -97,7 +108,7 @@ objects:
           name: hub
       spec:
         containers:
-          image: "${KOJI_HUB_IMAGE_REPO}:${KOJI_HUB_VERSION}"
+        - image: "${KOJI_HUB_IMAGE_REPO}:${KOJI_HUB_VERSION}"
           imagePullPolicy: IfNotPresent
           name: koji-hub
           ports:
