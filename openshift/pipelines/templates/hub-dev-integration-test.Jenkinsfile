@@ -37,6 +37,7 @@ pipeline {
   }
   stages {
     stage('Run functional tests') {
+      echo "The test ID is: ${TEST_ID}"
       environment {
         // Jenkins BUILD_TAG could be too long (> 63 characters) for OpenShift to consume
         TEST_ID = "${params.TEST_ID ?: 'jenkins-' + currentBuild.id}"
@@ -51,7 +52,6 @@ pipeline {
             def template = readYaml file: 'openshift/koji-hub-deploy-template.yaml'
             def webPodReplicas = 1 // The current quota in UpShift is agressively limited
             def models = openshift.process(template,
-              '-p', "TEST_ID=${env.TEST_ID}",
               '-p', "KOJI_HUB_IMAGE_REPO=${imageRepo}",
               '-p', "KOJI_HUB_VERSION=${imageTag ?: 'latest'}",
             )
