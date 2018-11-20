@@ -65,7 +65,7 @@ pipeline {
             timeout(15) {
               pods.untilEach(webPodReplicas + 1) {
                 def pod = it.object()
-                echo "1...Test pod ${pod.metadata.name}. Current phase is ${pod.status.phase}, ${pod.status.conditions}."
+                error("1...Test pod ${pod.metadata.name}. Current phase is ${pod.status.phase}, ${pod.status.conditions}.")
                 if (pod.status.phase in ["New", "Pending", "Unknown"]) {
                   return false
                 }
