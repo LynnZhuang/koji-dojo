@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Template
 metadata:
   creationTimestamp: null
-  name: koji
+  name: koji-hub-test-template
 objects:
 - apiVersion: v1
   kind: ConfigMap
@@ -97,7 +97,7 @@ objects:
           name: hub
       spec:
         containers:
-          image: ${KOJI_HUB_IMAGE_REPO}:${KOJI_HUB_VERSION}
+          image: "${KOJI_HUB_IMAGE_REPO}:${KOJI_HUB_VERSION}"
           imagePullPolicy: IfNotPresent
           name: koji-hub
           ports:
