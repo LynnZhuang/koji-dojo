@@ -81,7 +81,6 @@ pipeline {
             }
             // Run functional tests
             echo 'Not started yet...'
-            sh 'sleep 1200'
           }
         }
       }
