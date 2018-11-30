@@ -190,7 +190,7 @@ objects:
       protocol: TCP
       targetPort: 8443
     selector:
-      name: "test-${TEST_ID}"
+      environment: "test-${TEST_ID}"
     sessionAffinity: None
     type: ClusterIP
 parameters:
