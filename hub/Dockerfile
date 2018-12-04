@@ -94,7 +94,7 @@ RUN chmod -R o+rx /etc/httpd
 
 RUN bash -c "/usr/local/bin/setup_psql.sh"
 RUN echo $(echo $PROJ_NAME)
-RUN bash -c "/usr/local/bin/setup.sh $PROJ_NAME"
+RUN bash /usr/local/bin/setup.sh $PROJ_NAME
 RUN echo 'root:mypassword' | chpasswd
 
 # RUN rm -rf /etc/httpd/conf.d/ssl.conf
