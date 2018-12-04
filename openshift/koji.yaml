@@ -420,7 +420,7 @@ objects:
   kind: Route
   metadata:
     creationTimestamp: null
-    name: https
+    name: koji-hub
   spec:
     port:
       targetPort: https
