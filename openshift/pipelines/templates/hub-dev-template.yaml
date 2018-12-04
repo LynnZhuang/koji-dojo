@@ -91,7 +91,7 @@ parameters:
 - name: KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAME
   displayName: Name of BuildConfig for running integration tests
   required: true
-  value: koji-hub-integration-test
+  value: kojihub-integration-test
 - name: KOJI_INTEGRATION_TEST_BUILD_CONFIG_NAMESPACE
   displayName: Namespace of BuildConfig for running integration tests
   required: false

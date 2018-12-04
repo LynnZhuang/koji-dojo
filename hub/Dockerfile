@@ -14,6 +14,7 @@ ARG ADDITIONAL_REPOS=
 ARG KOJI_GIT_REPO=https://pagure.io/koji.git
 ARG KOJI_GIT_REF=master
 ARG KOJI_GIT_COMMIT
+ARG PROJ_NAME
 
 #RUN sed -i '/excludedocs/d' /etc/rpm/macros.imgcreate
 RUN sed -i '/nodocs/d' /etc/yum.conf
@@ -92,7 +93,7 @@ RUN chmod o+rwx /var/www/html
 RUN chmod -R o+rx /etc/httpd
 
 RUN bash -c "/usr/local/bin/setup_psql.sh"
-RUN bash -c "/usr/local/bin/setup.sh"
+RUN bash -c "/usr/local/bin/setup.sh $PROJ_NAME"
 RUN echo 'root:mypassword' | chpasswd
 
 # RUN rm -rf /etc/httpd/conf.d/ssl.conf

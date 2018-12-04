@@ -422,7 +422,6 @@ objects:
     creationTimestamp: null
     name: https
   spec:
-    host: ${PUBLIC_IP}.xip.io
     port:
       targetPort: https
     tls:
