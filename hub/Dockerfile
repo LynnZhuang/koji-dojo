@@ -70,7 +70,7 @@ RUN mkdir -p /usr/local/src \
   && git clone "$KOJI_GIT_REPO" /usr/local/src/koji \
   && cd /usr/local/src/koji \
   && git fetch origin "$KOJI_GIT_REF" \
-  && git checkout -f "$KOJI_GIT_COMMIT" \
+  # && git checkout -f $KOJI_GIT_COMMIT \
   # RUN echo $(ls -l /usr/local/src/koji/)
   # modify httpd port, 80 to 8080
   && sed -i "s/port == '80'/port == '8080'/g" ./www/kojiweb/index.py \
