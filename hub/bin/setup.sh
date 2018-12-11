@@ -73,6 +73,17 @@ serverca = /opt/koji-clients/kojiadmin/serverca.crt
 EOF
 }
 
+create_psql_passfile() {
+	cat <<EOF >> /opt/koji-clients/
+koji-db:5432:koji:koji:mypassword
+EOF
+}
+
+if [ -d /opt/koji-clients ]
+then
+	create_psql_passfile
+fi
+
 if [ -d /mnt/koji/packages ]
 then
     echo "Koji folders exist"
