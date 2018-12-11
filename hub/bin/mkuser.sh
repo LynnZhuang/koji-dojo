@@ -2,7 +2,7 @@
 
 set -x
 
-psql="PGPASSFILE=/opt/koji-clients/.pgpass psql --host=koji-db --username=koji koji"
+psql="PGPASSFILE=/opt/.pgpass psql --host=koji-db --username=koji koji"
 
 IP=$(find-ip.py || "koji-hub.local")
 
