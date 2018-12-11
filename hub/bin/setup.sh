@@ -74,7 +74,7 @@ EOF
 }
 
 create_psql_passfile() {
-	cat <<EOF >> /opt/koji-clients/
+	cat <<EOF >> /opt/koji-clients/.pgpass
 koji-db:5432:koji:koji:mypassword
 EOF
 }
