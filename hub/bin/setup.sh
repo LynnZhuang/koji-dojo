@@ -74,11 +74,11 @@ EOF
 }
 
 create_psql_passfile() {
-	echo "Create /opt/koji-clients/.pgpass"
-	cat <<EOF >> /opt/koji-clients/.pgpass
+	echo "Create /opt/koji/.pgpass"
+	cat <<EOF >> /opt/koji/.pgpass
 koji-db:5432:koji:koji:mypassword
 EOF
-  ls -la /opt/koji-clients/
+  ls -la /opt/koji/
 }
 
 if [ -d /mnt/koji/packages ]
@@ -96,7 +96,7 @@ else
 	generate_ssl_certificates $1
 fi
 
-if [ -d /opt/koji-clients ]
+if [ -d /opt/koji ]
 then
 	create_psql_passfile
 fi
