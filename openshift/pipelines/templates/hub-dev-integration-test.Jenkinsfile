@@ -48,6 +48,7 @@ pipeline {
         script {
           openshift.withCluster() {
             def imageTag = (params.IMAGE =~ /(?::(\w[\w.-]{0,127}))?$/)[0][1]
+            echo "Image tag is: ${imageTag}"
             def imageRepo = imageTag ? params.IMAGE.substring(0, params.IMAGE.length() - imageTag.length() - 1) : params.IMAGE
             def template = readYaml file: 'openshift/koji-hub-deploy-template.yaml'
             def webPodReplicas = 1 // The current quota in UpShift is agressively limited
