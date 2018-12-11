@@ -79,11 +79,6 @@ koji-db:5432:koji:koji:mypassword
 EOF
 }
 
-if [ -d /opt/koji-clients ]
-then
-	create_psql_passfile
-fi
-
 if [ -d /mnt/koji/packages ]
 then
     echo "Koji folders exist"
@@ -97,6 +92,11 @@ then
 else
 	echo $1
 	generate_ssl_certificates $1
+fi
+
+if [ -d /opt/koji-clients ]
+then
+	create_psql_passfile
 fi
 
 if [ -f /root/.koji/config ]
