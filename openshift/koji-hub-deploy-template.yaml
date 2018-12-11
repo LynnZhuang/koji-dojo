@@ -111,7 +111,7 @@ objects:
       spec:
         containers:
         - image: "${KOJI_HUB_IMAGE_REPO}:${KOJI_HUB_VERSION}"
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: koji-hub
           ports:
           - containerPort: 22
@@ -149,14 +149,6 @@ objects:
     test: false
     triggers:
     - type: ConfigChange
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - koji-hub
-        from:
-          kind: ImageStreamTag
-          name: koji-hub:latest
-      type: ImageChange
   status: {}
 - apiVersion: v1
   kind: Service
