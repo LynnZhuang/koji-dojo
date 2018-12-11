@@ -204,7 +204,7 @@ parameters:
     required: true
   - name: KOJI_HUB_IMAGE_REPO
     displayName: Koji image repo to be tested
-    value: quay.io/factory2/koji
+    value: docker-registry.engineering.redhat.com/brew-test/koji-hub
     required: true
   - name: KOJI_HUB_VERSION
     displayName: Koji image version to be tested
