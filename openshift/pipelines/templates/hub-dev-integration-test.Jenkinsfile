@@ -55,7 +55,7 @@ pipeline {
             def models = openshift.process(template,
               '-p', "TEST_ID=${env.TEST_ID}",
               '-p', "KOJI_HUB_IMAGE_REPO=${imageRepo}",
-              '-p', "KOJI_HUB_VERSION=${imageTag ?: 'latest'}",
+              '-p', "KOJI_HUB_VERSION=${'latest'}",
             )
             def objects = openshift.apply(models)
             echo "Waiting for test pods with label environment=${env.ENVIRONMENT_LABEL} to become Ready"
