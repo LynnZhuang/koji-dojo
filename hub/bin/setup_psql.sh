@@ -1,9 +1,9 @@
 #!/bin/bash
 
 set -x
-ls -la /opt/
+ls -la /root/
 
-psql="PGPASSFILE=/opt/.pgpass psql --host=koji-db --username=koji koji"
+psql="PGPASSFILE=/root/.pgpass psql --host=koji-db --username=koji koji"
 
 cat /usr/local/src/koji/docs/schema.sql | $psql
 echo "BEGIN WORK; INSERT INTO content_generator(name) VALUES('test-cg'); COMMIT WORK;" | $psql
