@@ -2,7 +2,7 @@
 
 set -x
 ls -la /opt/
-whoami
+cat /opt/.pgpass
 
 psql="PGPASSFILE=/opt/.pgpass psql --host=koji-db --username=koji koji"
 
