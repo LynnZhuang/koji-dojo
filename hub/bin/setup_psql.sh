@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -x
-ls -la /root/
+ls -la /opt/koji/
 
 psql="PGPASSFILE=/opt/koji/.pgpass psql --host=koji-db --username=koji koji"
 
