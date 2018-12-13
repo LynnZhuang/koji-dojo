@@ -92,4 +92,4 @@ cat <<EOF > $client/config.json
 }
 EOF
 
-chown -R nobody:nobody ${client}
+# chown -R nobody:nobody ${client}
