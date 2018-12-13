@@ -7,7 +7,8 @@ objects:
 - apiVersion: v1
   kind: ConfigMap
   metadata:
-    name: koji-dojo-config
+    labels:
+      name: koji-dojo-config
   data:
     koji.git.url: https://pagure.io/koji.git
     koji.git.branch: master
@@ -33,6 +34,22 @@ objects:
       requests:
         storage: 1Gi
     storageClassName: glusterfs-storage
+- apiVersion: v1
+  kind: Route
+  metadata:
+    labels:
+      name: "test-${TEST_ID}"
+      environment: "test-${TEST_ID}"
+  spec:
+    port:
+      targetPort: https
+    tls:
+      termination: passthrough
+    to:
+      kind: Service
+      name: koji-hub
+      weight: 100
+    wildcardPolicy: None
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
