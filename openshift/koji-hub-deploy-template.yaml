@@ -35,22 +35,6 @@ objects:
         storage: 1Gi
     storageClassName: glusterfs-storage
 - apiVersion: v1
-  kind: Route
-  metadata:
-    name: koji-hub
-    labels:
-      environment: "test-${TEST_ID}"
-  spec:
-    port:
-      targetPort: https
-    tls:
-      termination: passthrough
-    to:
-      kind: Service
-      name: koji-hub
-      weight: 100
-    wildcardPolicy: None
-- apiVersion: v1
   kind: DeploymentConfig
   metadata:
     creationTimestamp: null
