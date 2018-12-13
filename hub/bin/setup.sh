@@ -98,10 +98,10 @@ else
 	generate_ssl_certificates $1
 fi
 
-if [ -d /opt ]
-then
-	create_psql_passfile
-fi
+# if [ -d /opt ]
+# then
+# 	create_psql_passfile
+# fi
 
 if [ -f /root/.koji/config ]
 then
