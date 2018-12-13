@@ -83,7 +83,6 @@ ADD etc/ /etc/
 ADD bin/ /usr/local/bin/
 ADD root/ /root/
 
-RUN chmod 666 /root/.pgpass
 RUN chmod +x /usr/local/bin/*
 
 ADD cgi/*.py /var/www/cgi-bin/
