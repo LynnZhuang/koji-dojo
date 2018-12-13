@@ -2,8 +2,9 @@
 
 set -x
 ls -la /opt/koji/
+whoami
 
-psql="PGPASSFILE=/opt/koji/.pgpass psql --host=koji-db --username=koji koji"
+psql="PGPASSFILE=/opt/.pgpass psql --host=koji-db --username=koji koji"
 
 cat /usr/local/src/koji/docs/schema.sql | $psql
 echo "BEGIN WORK; INSERT INTO content_generator(name) VALUES('test-cg'); COMMIT WORK;" | $psql
