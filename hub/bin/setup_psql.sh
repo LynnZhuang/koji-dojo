@@ -7,9 +7,6 @@ cat <<EOF >> /opt/koji-clients/.pgpass
 koji-db:5432:koji:koji:mypassword
 EOF
 chmod 600 /opt/koji-clients/.pgpass
-ls -la /opt/koji-clients
-
-cat /opt/koji-clients/.pgpass
 
 export PGPASSFILE=/opt/koji-clients/.pgpass
 psql="psql --host=koji-db --username=koji koji"
