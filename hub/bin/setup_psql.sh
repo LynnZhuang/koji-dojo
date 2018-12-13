@@ -11,7 +11,8 @@ ls -la /opt/koji-clients
 
 cat /opt/koji-clients/.pgpass
 
-psql="PGPASSFILE=/opt/koji-clients/.pgpass psql --host=koji-db --username=koji koji"
+export PGPASSFILE=/opt/koji-clients/.pgpass
+psql="psql --host=koji-db --username=koji koji"
 
 cat /usr/local/src/koji/docs/schema.sql | $psql
 echo "BEGIN WORK; INSERT INTO content_generator(name) VALUES('test-cg'); COMMIT WORK;" | $psql

@@ -73,16 +73,6 @@ serverca = /opt/koji-clients/kojiadmin/serverca.crt
 EOF
 }
 
-create_psql_passfile() {
-	echo "Create /opt/.pgpass"
-	cat <<EOF >> /opt/.pgpass
-koji-db:5432:koji:koji:mypassword
-EOF
-  chown nobody:nobody /opt/.pgpass
-	chmod 600 /opt/.pgpass
-  ls -la /opt/
-}
-
 if [ -d /mnt/koji/packages ]
 then
     echo "Koji folders exist"
@@ -97,11 +87,6 @@ else
 	echo $1
 	generate_ssl_certificates $1
 fi
-
-# if [ -d /opt ]
-# then
-# 	create_psql_passfile
-# fi
 
 if [ -f /root/.koji/config ]
 then
