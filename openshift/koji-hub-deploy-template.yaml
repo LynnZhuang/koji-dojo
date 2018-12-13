@@ -73,7 +73,7 @@ objects:
       metadata:
         creationTimestamp: null
         labels:
-          name: db
+          environment: db
       spec:
         containers:
         - env:
