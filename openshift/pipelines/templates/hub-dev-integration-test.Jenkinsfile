@@ -100,9 +100,9 @@ pipeline {
             openshift.withCluster() {
               /* Tear down everything we just created */
               echo "Tearing down test resources..."
-              openshift.selector('dc,deploy,configmap,secret,svc,route',
+              openshift.selector('dc,deploy,configmap,secret,svc,route,service',
                       ['environment': env.ENVIRONMENT_LABEL]).delete()
-              openshift.selector('dc,deploy,service', ['name: db']).delete()
+              openshift.selector('dc,deploy,service', ['environment': db]).delete()
             }
           }
         }

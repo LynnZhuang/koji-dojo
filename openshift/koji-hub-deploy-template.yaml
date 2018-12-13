@@ -37,8 +37,8 @@ objects:
 - apiVersion: v1
   kind: Route
   metadata:
+    name: koji-hub
     labels:
-      name: "test-${TEST_ID}"
       environment: "test-${TEST_ID}"
   spec:
     port:
@@ -59,7 +59,7 @@ objects:
   spec:
     replicas: 1
     selector:
-      name: db
+      environment: db
     strategy:
       resources: {}
       rollingParams:
@@ -178,7 +178,7 @@ objects:
       protocol: TCP
       targetPort: 5432
     selector:
-      name: db
+      environment: db
     sessionAffinity: None
     type: ClusterIP
   status:
