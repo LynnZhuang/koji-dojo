@@ -78,6 +78,7 @@ create_psql_passfile() {
 	cat <<EOF >> /opt/.pgpass
 koji-db:5432:koji:koji:mypassword
 EOF
+  chown nobody:nobody /opt/.pgpass
 	chmod 600 /opt/.pgpass
   ls -la /opt/
 }
