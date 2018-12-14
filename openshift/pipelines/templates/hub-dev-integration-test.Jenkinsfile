@@ -103,13 +103,6 @@ pipeline {
               echo "Tearing down test resources..."
               openshift.selector('dc,deploy,configmap,secret,svc,route',
                       ['environment': env.ENVIRONMENT_LABEL]).delete()
-              echo "Tearing down test resources for koji-db..."
-              if (openshift.selector("services", env.ENVIRONMENT_LABEL).exists()) {
-                    echo "The service for koji-hub exists..."
-              }
-              if (openshift.selector("dc", env.KOJI_DB).exists()) {
-                    echo "The service for koji-hub exists..."
-              }
               openshift.selector("all", [ environment : env.KOJI_DB ]).delete()
             }
           }
