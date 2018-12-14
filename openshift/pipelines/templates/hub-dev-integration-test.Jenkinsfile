@@ -41,6 +41,7 @@ pipeline {
         // Jenkins BUILD_TAG could be too long (> 63 characters) for OpenShift to consume
         TEST_ID = "${params.TEST_ID ?: 'jenkins-' + currentBuild.id}"
         ENVIRONMENT_LABEL = "test-${env.TEST_ID}"
+        KOJI_DB = "db"
       }
       steps {
         echo "The test ID is: ${TEST_ID}"
@@ -103,7 +104,11 @@ pipeline {
               openshift.selector('dc,deploy,configmap,secret,svc,route',
                       ['environment': env.ENVIRONMENT_LABEL]).delete()
               echo "Tearing down test resources for koji-db..."
-              openshift.selector('dc,deploy,svc', ['environment: db']).delete()
+              if (openshift.selector("services", env.ENVIRONMENT_LABEL).exists()) {
+                    echo "The service for koji-hub exists..."
+              if (openshift.selector("dc", env.KOJI_DB).exists()) { 
+                    echo "The service for koji-hub exists..."
+              openshift.selector("all", [ environment : env.KOJI_DB ]).delete()
             }
           }
         }
