@@ -1,0 +1,273 @@
+# Template to produce a new OpenShift pipeline job for polling for Pagure branches or PRs
+#
+---
+apiVersion: v1
+kind: Template
+metadata:
+  name: koji-polling-to-pagure
+labels:
+  template: koji-polling-to-pagure
+parameters:
+- name: NAME
+  displayName: Short unique identifier for the templated instances
+  description: This field is used to deploy multiple pipelines to one OpenShift project from this template.
+  required: true
+  value: koji-polling-to-pagure
+- name: PAGURE_REPO_NAME
+  displayName: Pagure project name
+  description: <username>/<namespace>/<repo>
+  required: true
+  value: koji
+- name: PAGURE_REPO_IS_FORK
+  displayName: Is the Pagure repo a fork?
+  required: true
+  value: "false"
+- name: PAGURE_POLLING_FOR_PR
+  displayName: set to 'true' to poll for PRs, or 'false' for the master branch
+  required: true
+  value: "false"
+- name: PAGURE_POLLING_SCHEDULE
+  displayName: Schedule of polling
+  description: using cron-style syntax
+  required: true
+  value: "H/5 * * * *"
+- name: PAGURE_POLLED_BRANCH
+  displayName: Name of polled branch
+  required: true
+  value: "master"
+- name: DEV_PIPELINE_BC_NAME
+  displayName: Name of BuildConfig for starting dev pipeline builds
+  required: true
+  value: koji-dev
+- name: DEV_PIPELINE_BC_NAMESPACE
+  displayName: Namespace of BuildConfig for starting dev pipeline builds
+  required: false
+- name: PAGURE_API_KEY_SECRET_NAME
+  displayName: Name of Secret for updating Pagure pull-requests status
+  value: 'pagure-api-key'
+  required: false
+- name: MAIL_ENABLED
+  displayName: Whether to send an email
+  value: 'false'
+  required: true
+- name: JENKINS_AGENT_IMAGE
+  displayName: Container image for Jenkins slave pods
+  required: true
+  value: docker-registry.engineering.redhat.com/lzhuang/koji-jenkins-slave:latest
+- name: OPENSHIFT_CLOUD_NAME
+  displayName: Name of OpenShift cloud in Jenkins master configuration
+  required: true
+  value: openshift
+objects:
+- kind: ServiceAccount
+  apiVersion: v1
+  metadata:
+    name: "${NAME}-jenkins-slave"
+    labels:
+      app: "${NAME}"
+- kind: RoleBinding
+  apiVersion: v1
+  metadata:
+    name: "${NAME}-jenkins-slave_edit"
+    labels:
+      app: "${NAME}"
+  subjects:
+  - kind: ServiceAccount
+    name: "${NAME}-jenkins-slave"
+  roleRef:
+    name: edit
+- kind: "BuildConfig"
+  apiVersion: "v1"
+  metadata:
+    name: "${NAME}"
+    labels:
+      app: "${NAME}"
+  spec:
+    runPolicy: "Serial"
+    strategy:
+      type: JenkinsPipeline
+      jenkinsPipelineStrategy:
+        jenkinsfile: |-
+          // Don't use external Jenkinsfile here, or Jenkins will also poll on that repo and branch
+          pipeline {
+                    agent {
+                      kubernetes {
+                        cloud "${OPENSHIFT_CLOUD_NAME}"
+                        label "jenkins-slave-${UUID.randomUUID().toString()}"
+                        serviceAccount "${NAME}-jenkins-slave"
+                        defaultContainer 'jnlp'
+                        yaml """
+                        apiVersion: v1
+                        kind: Pod
+                        metadata:
+                          labels:
+                            app: "jenkins-${env.JOB_BASE_NAME}"
+                            factory2-pipeline-kind: "waiverdb-polling-to-pagure-pipeline"
+                            factory2-pipeline-build-number: "${env.BUILD_NUMBER}"
+                        spec:
+                          containers:
+                          - name: jnlp
+                            image: "${JENKINS_AGENT_IMAGE}"
+                            imagePullPolicy: Always
+                            tty: true
+                            resources:
+                              requests:
+                                memory: 378Mi
+                                cpu: 200m
+                              limits:
+                                memory: 768Mi
+                                cpu: 500m
+                        """
+                      }
+                    }
+                    options {
+                      timestamps()
+                    }
+                    environment {
+                      PIPELINE_NAMESPACE = readFile('/run/secrets/kubernetes.io/serviceaccount/namespace').trim()
+                      PAGURE_URL = 'https://pagure.io'
+                      PAGURE_API = "${env.PAGURE_URL}/api/0"
+                      PAGURE_REPO_IS_FORK = "${PAGURE_REPO_IS_FORK}"
+                      PAGURE_POLLING_FOR_PR = "${PAGURE_POLLING_FOR_PR}"
+                      PAGURE_REPO_HOME = "${env.PAGURE_URL}${env.PAGURE_REPO_IS_FORK == 'true' ? '/fork' : ''}/${PAGURE_REPO_NAME}"
+                      GIT_URL = "${env.PAGURE_URL}/${env.PAGURE_REPO_IS_FORK == 'true' ? 'forks/' : ''}${PAGURE_REPO_NAME}.git"
+                    }
+                    triggers { pollSCM("${PAGURE_POLLING_SCHEDULE}") }
+                    stages {
+                      stage('Prepare') {
+                        // agent { label 'master' }
+                        steps {
+                          script {
+                            // checking out the polled branch
+                            def polledBranch = env.PAGURE_POLLING_FOR_PR == 'true' ? 'origin/pull/*/head' : "origin/${PAGURE_POLLED_BRANCH}"
+                            def scmVars = checkout([$class: 'GitSCM',
+                              branches: [[name: polledBranch]],
+                              userRemoteConfigs: [
+                                [
+                                  name: 'origin',
+                                  url: env.GIT_URL,
+                                  refspec: '+refs/heads/*:refs/remotes/origin/* +refs/pull/*/head:refs/remotes/origin/pull/*/head',
+                                ],
+                              ],
+                              extensions: [[$class: 'CleanBeforeCheckout']],
+                            ])
+                            env.GIT_COMMIT = scmVars.GIT_COMMIT
+                            env.GIT_AUTHOR_EMAIL = scmVars.GIT_AUTHOR_EMAIL
+                            // setting build display name
+                            def prefix = 'origin/'
+                            def branch = scmVars.GIT_BRANCH.startsWith(prefix) ? scmVars.GIT_BRANCH.substring(prefix.size())
+                              : scmVars.GIT_BRANCH // origin/pull/1234/head -> pull/1234/head, origin/master -> master
+                            env.GIT_BRANCH = branch
+                            echo "Build on branch=${env.GIT_BRANCH}, commit=${env.GIT_COMMIT}"
+                            if (env.PAGURE_POLLING_FOR_PR == 'false' && branch == "${PAGURE_POLLED_BRANCH}") {
+                              echo 'Building master'
+                              currentBuild.displayName = "${PAGURE_POLLED_BRANCH}"
+                            }
+                            else if (env.PAGURE_POLLING_FOR_PR == 'true' && branch ==~ /^pull\/[0-9]+\/head$/) {
+                              env.PR_NO = branch.split('/')[1]
+                              env.PR_URL = "${env.PAGURE_REPO_HOME}/pull-request/${env.PR_NO}"
+                              echo "Building PR #${env.PR_NO}: ${env.PR_URL}"
+                              currentBuild.displayName = "PR-${env.PR_NO}"
+                            } else { // This shouldn't happen.
+                              error("Build is aborted due to unexpected polling trigger actions.")
+                            }
+                          }
+                        }
+                      }
+                      stage('Run Dev Build') {
+                        steps {
+                          script {
+                            openshift.withCluster() {
+                              openshift.withProject("${DEV_PIPELINE_BC_NAMESPACE}") {
+                                def bcSelector = openshift.selector('bc', "${DEV_PIPELINE_BC_NAME}")
+                                echo 'Starting a dev pipeline build...'
+                                def isMaster = env.PAGURE_POLLING_FOR_PR != 'true'
+                                def devBuild = bcSelector.startBuild(
+                                  '-e', "KOJI_GIT_REPO=${env.GIT_URL}",
+                                  '-e', "KOJI_GIT_REF=${isMaster? env.GIT_COMMIT : env.GIT_BRANCH}",
+                                  '-e', "KOJI_MAIN_BRANCH=${PAGURE_POLLED_BRANCH}",
+                                )
+                                devBuild.watch {
+                                  return !(it.object().status.phase in ["New", "Pending"])
+                                }
+                                def devBuildInfo = devBuild.object()
+                                env.DEV_BUILD_NAME = devBuildInfo.metadata.name
+                                env.DEV_BUILD_URL = devBuildInfo.metadata.annotations['openshift.io/jenkins-build-uri'] ?: env.BUILD_URL
+                                // if (env.PAGURE_POLLING_FOR_PR == 'true') {
+                                  // setting PR status to Pending
+                                //   setBuildStatusOnPagurePR(null, 'Pending')
+                                // }
+                                echo "Waiting for dev build ${devBuildInfo.metadata.name}(${env.DEV_BUILD_URL}) to complete..."
+                                devBuild.watch {
+                                  return it.object().status.phase != "Running"
+                                }
+                                devBuildInfo = devBuild.object()
+                                echo "Dev build ${devBuildInfo.metadata.name}(${env.DEV_BUILD_URL}) finished with status ${devBuildInfo.status.phase}."
+                                if (devBuildInfo.status.phase != "Complete") {
+                                  error("Dev build ${devBuildInfo.metadata.name}(${env.DEV_BUILD_URL}) failed.")
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    post {
+                      success {
+                        script {
+                          // updating Pagure PR flag and make a comment
+                          if (env.PAGURE_POLLING_FOR_PR == 'true' && "${PAGURE_API_KEY_SECRET_NAME}") {
+                            pipeline = load 'openshift/scripts/pagure-pr-status-updater.groovy'
+                            try {
+                              withCredentials([string(credentialsId: "${env.PIPELINE_NAMESPACE}-${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
+                                pipeline.setBuildStatusOnPagurePR(
+                                  pagure_site: env.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_NAME}",
+                                  pr_no: env.PR_NO, token: env.TOKEN,
+                                  percent: 100, build_url: env.DEV_BUILD_URL?:env.BUILD_URL,
+                                  comment: 'Build passed.')
+                              }
+                              echo "Updated PR #${env.PR_NO} status to PASS."
+                            } catch (e) {
+                              echo "Error updating PR #${env.PR_NO} status to PASS: ${e}"
+                            }
+                          }
+                        }
+                      }
+                      failure {
+                        script {
+                          // updating Pagure PR flag
+                          if (env.PAGURE_POLLING_FOR_PR == 'true' && "${PAGURE_API_KEY_SECRET_NAME}") {
+                            pipeline = load 'openshift/scripts/pagure-pr-status-updater.groovy'
+                            try {
+                              withCredentials([string(credentialsId: "${env.PIPELINE_NAMESPACE}-${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
+                                pipeline.setBuildStatusOnPagurePR(
+                                  pagure_site: env.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_NAME}",
+                                  pr_no: env.PR_NO, token: env.TOKEN,
+                                  percent: 0, build_url: env.DEV_BUILD_URL?:env.BUILD_URL,
+                                  comment: 'Build failed.')
+                              }
+                              echo "Updated PR #${env.PR_NO} status to FAILURE."
+                            } catch (e) {
+                              echo "Error updating PR #${env.PR_NO} status to FAILURE: ${e}"
+                            }
+                            if (env.DEV_BUILD_NAME) {
+                              try {
+                                withCredentials([string(credentialsId: "${env.PIPELINE_NAMESPACE}-${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
+                                  pipeline.commentOnPR(
+                                    pagure_siteenv.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_NAME}",
+                                    pr_no: env.PR_NO, token: env.TOKEN,
+                                    comment: """
+                                      Build ${env.GIT_COMMIT} [FAILED](${env.DEV_BUILD_URL})!
+                                      Rebase or make new commits to rebuild.
+                                      """.stripIndent())
+                                }
+                                echo "Comment made."
+                              } catch (e) {
+                                echo "Error making a comment on PR #${env.PR_NO}: ${e}"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
