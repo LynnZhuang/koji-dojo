@@ -120,9 +120,6 @@ objects:
                         """
                       }
                     }
-                    options {
-                      timestamps()
-                    }
                     environment {
                       PIPELINE_NAMESPACE = readFile('/run/secrets/kubernetes.io/serviceaccount/namespace').trim()
                       PAGURE_URL = 'https://pagure.io'
