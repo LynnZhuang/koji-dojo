@@ -17,11 +17,11 @@ parameters:
   displayName: Pagure project name
   description: <username>/<namespace>/<repo>
   required: true
-  value: koji
+  value: lzhuang/koji
 - name: PAGURE_REPO_IS_FORK
   displayName: Is the Pagure repo a fork?
   required: true
-  value: "false"
+  value: "true"
 - name: PAGURE_POLLING_FOR_PR
   displayName: set to 'true' to poll for PRs, or 'false' for the master branch
   required: true
@@ -221,7 +221,7 @@ objects:
                             try {
                               withCredentials([string(credentialsId: "${env.PIPELINE_NAMESPACE}-${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
                                 pipeline.setBuildStatusOnPagurePR(
-                                  pagure_site: env.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_NAME}",
+                                  pagure_site: env.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_HOME}",
                                   pr_no: env.PR_NO, token: env.TOKEN,
                                   percent: 100, build_url: env.DEV_BUILD_URL?:env.BUILD_URL,
                                   comment: 'Build passed.')
@@ -241,7 +241,7 @@ objects:
                             try {
                               withCredentials([string(credentialsId: "${env.PIPELINE_NAMESPACE}-${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
                                 pipeline.setBuildStatusOnPagurePR(
-                                  pagure_site: env.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_NAME}",
+                                  pagure_site: env.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_HOME}",
                                   pr_no: env.PR_NO, token: env.TOKEN,
                                   percent: 0, build_url: env.DEV_BUILD_URL?:env.BUILD_URL,
                                   comment: 'Build failed.')
@@ -254,7 +254,7 @@ objects:
                               try {
                                 withCredentials([string(credentialsId: "${env.PIPELINE_NAMESPACE}-${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
                                   pipeline.commentOnPR(
-                                    pagure_siteenv.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_NAME}",
+                                    pagure_siteenv.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_HOME}",
                                     pr_no: env.PR_NO, token: env.TOKEN,
                                     comment: """
                                       Build ${env.GIT_COMMIT} [FAILED](${env.DEV_BUILD_URL})!
