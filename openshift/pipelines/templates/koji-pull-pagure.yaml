@@ -13,6 +13,16 @@ parameters:
   description: This field is used to deploy multiple pipelines to one OpenShift project from this template.
   required: true
   value: koji-polling-to-pagure
+- name: KOJI_DOJO_GIT_REPO
+  displayName: Koji Git repo URL
+  description: Default WaiverDB Git repo URL in which to run dev tests against
+  required: true
+  value: https://github.com/LynnZhuang/koji-dojo.git
+- name: KOJI_DOJO_MAIN_BRANCH
+  displayName: Name of the main branch.
+  description: KOJI_DOJO main branch.
+  value: master
+  required: true
 - name: PAGURE_REPO_NAME
   displayName: Pagure project name
   description: <username>/<namespace>/<repo>
@@ -135,6 +145,12 @@ objects:
                         // agent { label 'master' }
                         steps {
                           script {
+                            // checking out koji-dojo
+                            def scmVars = checkout([$class: 'GitSCM',
+                              branches: [[name: params.KOJI_DOJO_MAIN_BRANCH]],
+                              userRemoteConfigs: [[url: params.KOJI_DOJO_GIT_REPO]],
+                            ])
+                            echo "End of checkout koji-dojo"
                             // checking out the polled branch
                             def polledBranch = env.PAGURE_POLLING_FOR_PR == 'true' ? 'origin/pull/*/head' : "origin/${PAGURE_POLLED_BRANCH}"
                             def scmVars = checkout([$class: 'GitSCM',
@@ -214,7 +230,7 @@ objects:
                         script {
                           // updating Pagure PR flag and make a comment
                           if (env.PAGURE_POLLING_FOR_PR == 'true' && "${PAGURE_API_KEY_SECRET_NAME}") {
-                            pipeline = load 'openshift/scripts/pagure-pr-status-updater.groovy'
+                            pipeline = load 'koji-dojo/openshift/scripts/pagure-pr-status-updater.groovy'
                             try {
                               withCredentials([string(credentialsId: "${env.PIPELINE_NAMESPACE}-${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
                                 pipeline.setBuildStatusOnPagurePR(
@@ -234,7 +250,7 @@ objects:
                         script {
                           // updating Pagure PR flag
                           if (env.PAGURE_POLLING_FOR_PR == 'true' && "${PAGURE_API_KEY_SECRET_NAME}") {
-                            pipeline = load 'openshift/scripts/pagure-pr-status-updater.groovy'
+                            pipeline = load 'koji-dojo/openshift/scripts/pagure-pr-status-updater.groovy'
                             try {
                               withCredentials([string(credentialsId: "${env.PIPELINE_NAMESPACE}-${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
                                 pipeline.setBuildStatusOnPagurePR(
