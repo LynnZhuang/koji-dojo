@@ -223,11 +223,16 @@ objects:
                       success {
                         script {
                           // checking out koji-dojo
-                          def scmVars = checkout([$class: 'GitSCM',
-                            branches: [[name: params.KOJI_DOJO_MAIN_BRANCH]],
-                            userRemoteConfigs: [[url: params.KOJI_DOJO_GIT_REPO]],
-                          ])
-                          echo "End of checkout koji-dojo"
+                          sh '''set -e +x # hide the token from Jenkins console
+                          mkdir -p koji-dojo
+                          '''
+                          dir ('koji-dojo'){
+                              def scmVars = checkout([$class: 'GitSCM',
+                                branches: [[name: params.KOJI_DOJO_MAIN_BRANCH]],
+                                userRemoteConfigs: [[url: params.KOJI_DOJO_GIT_REPO]],
+                              ])
+                              echo "End of checkout koji-dojo"
+                          }
                           // updating Pagure PR flag and make a comment
                           if (env.PAGURE_POLLING_FOR_PR == 'true' && "${PAGURE_API_KEY_SECRET_NAME}") {
                             pipeline = load 'koji-dojo/openshift/scripts/pagure-pr-status-updater.groovy'
@@ -249,11 +254,16 @@ objects:
                       failure {
                         script {
                           // checking out koji-dojo
-                          def scmVars = checkout([$class: 'GitSCM',
-                            branches: [[name: params.KOJI_DOJO_MAIN_BRANCH]],
-                            userRemoteConfigs: [[url: params.KOJI_DOJO_GIT_REPO]],
-                          ])
-                          echo "End of checkout koji-dojo"
+                          sh '''set -e +x # hide the token from Jenkins console
+                          mkdir -p koji-dojo
+                          '''
+                          dir ('koji-dojo'){
+                              def scmVars = checkout([$class: 'GitSCM',
+                                branches: [[name: params.KOJI_DOJO_MAIN_BRANCH]],
+                                userRemoteConfigs: [[url: params.KOJI_DOJO_GIT_REPO]],
+                              ])
+                              echo "End of checkout koji-dojo"
+                          }
                           // updating Pagure PR flag
                           if (env.PAGURE_POLLING_FOR_PR == 'true' && "${PAGURE_API_KEY_SECRET_NAME}") {
                             pipeline = load 'koji-dojo/openshift/scripts/pagure-pr-status-updater.groovy'
