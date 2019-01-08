@@ -136,6 +136,8 @@ objects:
                       PAGURE_API = "${env.PAGURE_URL}/api/0"
                       PAGURE_REPO_IS_FORK = "${PAGURE_REPO_IS_FORK}"
                       PAGURE_POLLING_FOR_PR = "${PAGURE_POLLING_FOR_PR}"
+                      KOJI_DOJO_MAIN_BRANCH = "${KOJI_DOJO_MAIN_BRANCH}"
+                      KOJI_DOJO_GIT_REPO = "${KOJI_DOJO_GIT_REPO}"
                       PAGURE_REPO_HOME = "${env.PAGURE_URL}${env.PAGURE_REPO_IS_FORK == 'true' ? '/fork' : ''}/${PAGURE_REPO_NAME}"
                       GIT_URL = "${env.PAGURE_URL}/${env.PAGURE_REPO_IS_FORK == 'true' ? 'forks/' : ''}${PAGURE_REPO_NAME}.git"
                     }
@@ -228,8 +230,8 @@ objects:
                           '''
                           dir ('koji-dojo'){
                               def scmVars = checkout([$class: 'GitSCM',
-                                branches: [[name: params.KOJI_DOJO_MAIN_BRANCH]],
-                                userRemoteConfigs: [[url: params.KOJI_DOJO_GIT_REPO]],
+                                branches: [[name: env.KOJI_DOJO_MAIN_BRANCH]],
+                                userRemoteConfigs: [[url: env.KOJI_DOJO_GIT_REPO]],
                               ])
                               echo "End of checkout koji-dojo"
                           }
@@ -259,8 +261,8 @@ objects:
                           '''
                           dir ('koji-dojo'){
                               def scmVars = checkout([$class: 'GitSCM',
-                                branches: [[name: params.KOJI_DOJO_MAIN_BRANCH]],
-                                userRemoteConfigs: [[url: params.KOJI_DOJO_GIT_REPO]],
+                                branches: [[name: env.KOJI_DOJO_MAIN_BRANCH]],
+                                userRemoteConfigs: [[url: env.KOJI_DOJO_GIT_REPO]],
                               ])
                               echo "End of checkout koji-dojo"
                           }
