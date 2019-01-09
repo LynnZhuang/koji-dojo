@@ -268,7 +268,9 @@ objects:
                           }
                           // updating Pagure PR flag
                           if (env.PAGURE_POLLING_FOR_PR == 'true' && "${PAGURE_API_KEY_SECRET_NAME}") {
+                            echo "To load pipeline script..."
                             pipeline = load 'koji-dojo/openshift/scripts/pagure-pr-status-updater.groovy'
+                            echo "Finished loading pipeline script..."
                             try {
                               withCredentials([string(credentialsId: "${env.PIPELINE_NAMESPACE}-${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
                                 pipeline.setBuildStatusOnPagurePR(
