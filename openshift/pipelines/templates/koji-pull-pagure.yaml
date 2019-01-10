@@ -272,7 +272,7 @@ objects:
                             // pipeline = load 'koji-dojo/openshift/scripts/pagure-pr-status-updater.groovy'
                             // echo "Finished loading pipeline script..."
                             try {
-                              withCredentials([string(credentialsId: "${env.PIPELINE_NAMESPACE}-${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
+                              withCredentials([string(credentialsId: "${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
                                 setBuildStatusOnPagurePR(
                                   pagure_site: env.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_HOME}",
                                   pr_no: env.PR_NO, token: env.TOKEN,
@@ -285,7 +285,7 @@ objects:
                             }
                             if (env.DEV_BUILD_NAME) {
                               try {
-                                withCredentials([string(credentialsId: "${env.PIPELINE_NAMESPACE}-${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
+                                withCredentials([string(credentialsId: "${${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
                                   commentOnPR(
                                     pagure_siteenv.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_HOME}",
                                     pr_no: env.PR_NO, token: env.TOKEN,
