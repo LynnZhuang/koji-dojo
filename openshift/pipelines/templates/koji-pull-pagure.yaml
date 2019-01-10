@@ -326,7 +326,7 @@ objects:
                     }
                   }
 
-                  def commentOnPR(pagure_site, pagure_repo_name, pr_no, token, String comment) {
+                  def commentOnPR(pagure_site, pagure_repo_name, pr_no, String comment) {
                     withCredentials([string(credentialsId: "${env.PIPELINE_NAMESPACE}-${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
                       def token = env.TOKEN
                       def pagureUrl = "/api/0/${pagure_repo_name}/pull-request/${pr_no}/comment"
