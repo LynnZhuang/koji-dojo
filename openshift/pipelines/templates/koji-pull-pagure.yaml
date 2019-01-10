@@ -225,27 +225,24 @@ objects:
                       success {
                         script {
                           // checking out koji-dojo
-                          sh '''set -e +x # hide the token from Jenkins console
-                          mkdir -p koji-dojo
-                          '''
-                          dir ('koji-dojo'){
-                              def scmVars = checkout([$class: 'GitSCM',
-                                branches: [[name: env.KOJI_DOJO_MAIN_BRANCH]],
-                                userRemoteConfigs: [[url: env.KOJI_DOJO_GIT_REPO]],
-                              ])
-                              echo "End of checkout koji-dojo"
-                          }
+                          // sh '''set -e +x # hide the token from Jenkins console
+                          // mkdir -p koji-dojo
+                          // '''
+                          // dir ('koji-dojo'){
+                          //     def scmVars = checkout([$class: 'GitSCM',
+                          //       branches: [[name: env.KOJI_DOJO_MAIN_BRANCH]],
+                          //       userRemoteConfigs: [[url: env.KOJI_DOJO_GIT_REPO]],
+                          //     ])
+                          //     echo "End of checkout koji-dojo"
+                          // }
                           // updating Pagure PR flag and make a comment
                           if (env.PAGURE_POLLING_FOR_PR == 'true' && "${PAGURE_API_KEY_SECRET_NAME}") {
-                            pipeline = load 'koji-dojo/openshift/scripts/pagure-pr-status-updater.groovy'
                             try {
-                              withCredentials([string(credentialsId: "${env.PIPELINE_NAMESPACE}-${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
-                                pipeline.setBuildStatusOnPagurePR(
-                                  pagure_site: env.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_HOME}",
-                                  pr_no: env.PR_NO, token: env.TOKEN,
-                                  percent: 100, build_url: env.DEV_BUILD_URL?:env.BUILD_URL,
-                                  comment: 'Build passed.')
-                              }
+                              setBuildStatusOnPagurePR(
+                                pagure_site: env.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_HOME}",
+                                pr_no: env.PR_NO, token: env.TOKEN,
+                                percent: 100, build_url: env.DEV_BUILD_URL?:env.BUILD_URL,
+                                comment: 'Build passed.')
                               echo "Updated PR #${env.PR_NO} status to PASS."
                             } catch (e) {
                               echo "Error updating PR #${env.PR_NO} status to PASS: ${e}"
@@ -272,28 +269,24 @@ objects:
                             // pipeline = load 'koji-dojo/openshift/scripts/pagure-pr-status-updater.groovy'
                             // echo "Finished loading pipeline script..."
                             try {
-                              withCredentials([string(credentialsId: "${env.PIPELINE_NAMESPACE}-${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
-                                setBuildStatusOnPagurePR(
-                                  pagure_site: env.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_HOME}",
-                                  pr_no: env.PR_NO, token: env.TOKEN,
-                                  percent: 0, build_url: env.DEV_BUILD_URL?:env.BUILD_URL,
-                                  comment: 'Build failed.')
-                              }
+                              setBuildStatusOnPagurePR(
+                                pagure_site: env.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_HOME}",
+                                pr_no: env.PR_NO, token: env.TOKEN,
+                                percent: 0, build_url: env.DEV_BUILD_URL?:env.BUILD_URL,
+                                comment: 'Build failed.')
                               echo "Updated PR #${env.PR_NO} status to FAILURE."
                             } catch (e) {
                               echo "Error updating PR #${env.PR_NO} status to FAILURE: ${e}"
                             }
                             if (env.DEV_BUILD_NAME) {
                               try {
-                                withCredentials([string(credentialsId: "${env.PIPELINE_NAMESPACE}-${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
-                                  commentOnPR(
-                                    pagure_siteenv.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_HOME}",
-                                    pr_no: env.PR_NO, token: env.TOKEN,
-                                    comment: """
-                                      Build ${env.GIT_COMMIT} [FAILED](${env.DEV_BUILD_URL})!
-                                      Rebase or make new commits to rebuild.
-                                      """.stripIndent())
-                                }
+                                commentOnPR(
+                                  pagure_siteenv.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_HOME}",
+                                  pr_no: env.PR_NO,
+                                  comment: """
+                                    Build ${env.GIT_COMMIT} [FAILED](${env.DEV_BUILD_URL})!
+                                    Rebase or make new commits to rebuild.
+                                    """.stripIndent())
                                 echo "Comment made."
                               } catch (e) {
                                 echo "Error making a comment on PR #${env.PR_NO}: ${e}"
@@ -305,46 +298,51 @@ objects:
                     }
                   }
                   import static groovy.json.JsonOutput.*
+                  def setBuildStatusOnPagurePR(pagure_site, pagure_repo_name, pr_no, percent, build_url, String comment) {
+                    withCredentials([string(credentialsId: "${env.PIPELINE_NAMESPACE}-${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
+                      def pagureUrl = "/api/0/${pagure_repo_name}/pull-request/${pr_no}/flag"
+                      def token = env.TOKEN
+                      def payload = [ 'username': 'c3i-jenkins',
+                                    'percent' : percent,
+                                    'comment' : comment,
+                                    'url'     : build_url,
+                                    'uid'     : 'ci-pre-merge'
+                                  ]
+                      println "Sending Args:"
+                      println payload
 
-                  def setBuildStatusOnPagurePR(pagure_site, pagure_repo_name, pr_no, token, percent, build_url, String comment) {
-                    def pagureUrl = "/api/0/${pagure_repo_name}/pull-request/${pr_no}/flag"
-                    def payload = [ 'username': 'c3i-jenkins',
-                                  'percent' : percent,
-                                  'comment' : comment,
-                                  'url'     : build_url,
-                                  'uid'     : 'ci-pre-merge'
-                                ]
-                    println "Sending Args:"
-                    println payload
+                      def result = configure {
+                        request.uri = pagure_site
+                        request.contentType = JSON[0]
+                        request.headers['Authorization'] = "token ${token}"
+                      }.post {
+                        request.uri.path = pagureUrl
+                        request.body = payload
+                        request.contentType = 'application/x-www-form-urlencoded'
+                        request.encoder 'application/x-www-form-urlencoded', NativeHandlers.Encoders.&form
+                      }
 
-                    def result = configure {
-                      request.uri = pagure_site
-                      request.contentType = JSON[0]
-                      request.headers['Authorization'] = "token ${token}"
-                    }.post {
-                      request.uri.path = pagureUrl
-                      request.body = payload
-                      request.contentType = 'application/x-www-form-urlencoded'
-                      request.encoder 'application/x-www-form-urlencoded', NativeHandlers.Encoders.&form
+                      println prettyPrint(toJson(result))
                     }
-
-                    println prettyPrint(toJson(result))
                   }
 
                   def commentOnPR(pagure_site, pagure_repo_name, pr_no, token, String comment) {
-                    def pagureUrl = "/api/0/${pagure_repo_name}/pull-request/${pr_no}/comment"
-                    def payload = [ 'comment': comment]
+                    withCredentials([string(credentialsId: "${env.PIPELINE_NAMESPACE}-${PAGURE_API_KEY_SECRET_NAME}", variable: 'TOKEN')]) {
+                      def token = env.TOKEN
+                      def pagureUrl = "/api/0/${pagure_repo_name}/pull-request/${pr_no}/comment"
+                      def payload = [ 'comment': comment]
 
-                    def result = configure {
-                      request.uri = pagure_site
-                      request.contentType = JSON[0]
-                      request.headers['Authorization'] = "token ${token}"
-                    }.post {
-                      request.uri.path = pagureUrl
-                      request.body = payload
-                      request.contentType = 'application/x-www-form-urlencoded'
-                      request.encoder 'application/x-www-form-urlencoded', NativeHandlers.Encoders.&form
+                      def result = configure {
+                        request.uri = pagure_site
+                        request.contentType = JSON[0]
+                        request.headers['Authorization'] = "token ${token}"
+                      }.post {
+                        request.uri.path = pagureUrl
+                        request.body = payload
+                        request.contentType = 'application/x-www-form-urlencoded'
+                        request.encoder 'application/x-www-form-urlencoded', NativeHandlers.Encoders.&form
+                      }
+
+                      println prettyPrint(toJson(result))
                     }
-
-                    println prettyPrint(toJson(result))
                   }
