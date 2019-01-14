@@ -280,7 +280,7 @@ objects:
                       try {
                         operation_on_pagure.commentOnPR(
                           pagure_siteenv.PAGURE_URL, "${PAGURE_REPO_HOME}",
-                          env.PR_NO, env.TOKEN, 
+                          env.PR_NO, env.TOKEN,
                           """
                             Build ${env.GIT_COMMIT} [FAILED](${env.DEV_BUILD_URL})!
                             Rebase or make new commits to rebuild.

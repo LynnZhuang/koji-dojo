@@ -1,3 +1,4 @@
+@Grab(group='org.codehaus.groovy.modules.http-builder', module='http-builder', version='0.7' )
 import static groovyx.net.http.HttpBuilder.configure
 import static groovyx.net.http.ContentTypes.JSON
 import groovyx.net.http.*
