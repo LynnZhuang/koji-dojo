@@ -224,13 +224,25 @@ objects:
             post {
               success {
                 script {
+                  // checking out koji-dojo
+                  sh '''set -e +x # hide the token from Jenkins console
+                  mkdir -p koji-dojo
+                  '''
+                  dir ('koji-dojo'){
+                     def scmVars = checkout([$class: 'GitSCM',
+                       branches: [[name: env.KOJI_DOJO_MAIN_BRANCH]],
+                       userRemoteConfigs: [[url: env.KOJI_DOJO_GIT_REPO]],
+                     ])
+                     echo "End of checkout koji-dojo"
+                  }
                   if (env.PAGURE_POLLING_FOR_PR == 'true' && "${PAGURE_API_KEY_SECRET_NAME}") {
                     try {
-                      setBuildStatusOnPagurePR(
-                        pagure_site: env.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_HOME}",
-                        pr_no: env.PR_NO, token: env.TOKEN,
-                        percent: 100, build_url: env.DEV_BUILD_URL?:env.BUILD_URL,
-                        comment: 'Build passed.')
+                      def operation_on_pagure = load "koji-dojo/openshift/scripts/pagure-pr-status-updater.groovy"
+                      operation_on_pagure.setBuildStatusOnPagurePR(
+                        env.PAGURE_URL, "${PAGURE_REPO_HOME}",
+                        env.PR_NO, env.TOKEN,
+                        100, env.DEV_BUILD_URL?:env.BUILD_URL,
+                        'Build passed.')
                       echo "Updated PR #${env.PR_NO} status to PASS."
                     } catch (e) {
                       echo "Error updating PR #${env.PR_NO} status to PASS: ${e}"
@@ -240,25 +252,36 @@ objects:
               }
               failure {
                 script {
+                  // checking out koji-dojo
+                  sh '''set -e +x # hide the token from Jenkins console
+                  mkdir -p koji-dojo
+                  '''
+                  dir ('koji-dojo'){
+                     def scmVars = checkout([$class: 'GitSCM',
+                       branches: [[name: env.KOJI_DOJO_MAIN_BRANCH]],
+                       userRemoteConfigs: [[url: env.KOJI_DOJO_GIT_REPO]],
+                     ])
+                     echo "End of checkout koji-dojo"
+                  }
+                  def operation_on_pagure = load "koji-dojo/openshift/scripts/pagure-pr-status-updater.groovy"
                   if (env.PAGURE_POLLING_FOR_PR == 'true' && "${PAGURE_API_KEY_SECRET_NAME}") {
                     echo "To set build status..."
                     try {
-                      setBuildStatusOnPagurePR(
+                      operation_on_pagure.setBuildStatusOnPagurePR(
                         env.PAGURE_URL, "${PAGURE_REPO_HOME}",
                         env.PR_NO, 0, env.DEV_BUILD_URL?:env.BUILD_URL,
                         'Build failed.')
                       echo "Updated PR #${env.PR_NO} status to FAILURE."
-                      // setStatus('Build failed.')
                       echo "Script2"
                     } catch (e) {
                       echo "Error updating PR #${env.PR_NO} status to FAILURE: ${e}"
                     }
                     if (env.DEV_BUILD_NAME) {
                       try {
-                        commentOnPR(
-                          pagure_siteenv.PAGURE_URL, pagure_repo_name: "${PAGURE_REPO_HOME}",
-                          pr_no: env.PR_NO,
-                          comment: """
+                        operation_on_pagure.commentOnPR(
+                          pagure_siteenv.PAGURE_URL, "${PAGURE_REPO_HOME}",
+                          env.PR_NO, env.TOKEN, 
+                          """
                             Build ${env.GIT_COMMIT} [FAILED](${env.DEV_BUILD_URL})!
                             Rebase or make new commits to rebuild.
                             """.stripIndent())

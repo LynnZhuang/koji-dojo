@@ -1,4 +1,3 @@
-@Grab('io.github.http-builder-ng:http-builder-ng-core:1.0.3')
 import static groovyx.net.http.HttpBuilder.configure
 import static groovyx.net.http.ContentTypes.JSON
 import groovyx.net.http.*
