@@ -13,8 +13,6 @@ ARG ADDITIONAL_REPOS=
 
 ARG KOJI_GIT_REPO=https://pagure.io/koji.git
 ARG KOJI_GIT_REF=master
-ARG KOJI_GIT_COMMIT
-ARG PROJ_NAME
 
 #RUN sed -i '/excludedocs/d' /etc/rpm/macros.imgcreate
 RUN sed -i '/nodocs/d' /etc/yum.conf
@@ -64,14 +62,11 @@ RUN yum -y update && \
     ; yum clean all
 
 # install
-RUN echo $(echo $KOJI_GIT_COMMIT)
-RUN echo $(echo $KOJI_GIT_REPO)
 RUN mkdir -p /usr/local/src \
   && git clone "$KOJI_GIT_REPO" /usr/local/src/koji \
   && cd /usr/local/src/koji \
   && git fetch origin "$KOJI_GIT_REF" \
-  # && git checkout -f $KOJI_GIT_COMMIT \
-  # RUN echo $(ls -l /usr/local/src/koji/)
+  && git checkout -f "$KOJI_GIT_REF" \
   # modify httpd port, 80 to 8080
   && sed -i "s/port == '80'/port == '8080'/g" ./www/kojiweb/index.py \
   && rm -rf noarch \
@@ -83,6 +78,7 @@ ADD etc/ /etc/
 ADD bin/ /usr/local/bin/
 ADD root/ /root/
 
+RUN chmod 600 /root/.pgpass
 RUN chmod +x /usr/local/bin/*
 
 ADD cgi/*.py /var/www/cgi-bin/
@@ -91,8 +87,8 @@ RUN chmod +x /var/www/cgi-bin/*.py
 RUN chmod o+rwx /var/www/html
 RUN chmod -R o+rx /etc/httpd
 
-# RUN bash -c "/usr/local/bin/setup_psql.sh"
-RUN bash -c "/usr/local/bin/setup.sh $PROJ_NAME"
+RUN bash -c "/usr/local/bin/setup_psql.sh"
+RUN bash -c "/usr/local/bin/setup.sh brew-test"
 RUN echo 'root:mypassword' | chpasswd
 
 # RUN rm -rf /etc/httpd/conf.d/ssl.conf
