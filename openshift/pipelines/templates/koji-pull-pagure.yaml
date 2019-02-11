@@ -238,11 +238,7 @@ objects:
                   if (env.PAGURE_POLLING_FOR_PR == 'true' && "${PAGURE_API_KEY_SECRET_NAME}") {
                     try {
                       def operation_on_pagure = load "koji-dojo/openshift/scripts/pagure-pr-status-updater.groovy"
-                      operation_on_pagure.setBuildStatusOnPagurePR(
-                        env.PAGURE_URL, "${PAGURE_REPO_HOME}",
-                        env.PR_NO, env.TOKEN,
-                        100, env.DEV_BUILD_URL?:env.BUILD_URL,
-                        'Build passed.')
+                      operation_on_pagure.setBuildStatusOnPagurePR(100, 'Build passed.')
                       echo "Updated PR #${env.PR_NO} status to PASS."
                     } catch (e) {
                       echo "Error updating PR #${env.PR_NO} status to PASS: ${e}"
@@ -267,10 +263,7 @@ objects:
                   if (env.PAGURE_POLLING_FOR_PR == 'true' && "${PAGURE_API_KEY_SECRET_NAME}") {
                     echo "To set build status..."
                     try {
-                      operation_on_pagure.setBuildStatusOnPagurePR(
-                        env.PAGURE_URL, "${PAGURE_REPO_HOME}",
-                        env.PR_NO, 0, env.DEV_BUILD_URL?:env.BUILD_URL,
-                        'Build failed.')
+                      operation_on_pagure.setBuildStatusOnPagurePR(0, 'Build failed.')
                       echo "Updated PR #${env.PR_NO} status to FAILURE."
                       echo "Script2"
                     } catch (e) {
@@ -279,9 +272,7 @@ objects:
                     if (env.DEV_BUILD_NAME) {
                       try {
                         operation_on_pagure.commentOnPR(
-                          pagure_siteenv.PAGURE_URL, "${PAGURE_REPO_HOME}",
-                          env.PR_NO, env.TOKEN,
-                          """
+                        """
                             Build ${env.GIT_COMMIT} [FAILED](${env.DEV_BUILD_URL})!
                             Rebase or make new commits to rebuild.
                             """.stripIndent())
